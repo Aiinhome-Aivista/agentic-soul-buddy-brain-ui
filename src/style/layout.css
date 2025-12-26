@@ -1,0 +1,21 @@
+ .grid-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            /* Header height auto, main takes remaining space, footer height auto */
+            grid-template-columns: 1fr;
+            /* Single column for all elements */
+            min-height: 100vh;
+            /* Ensures the grid container takes at least full viewport height */
+        }
+
+        .header {
+            grid-row: 1;
+        }
+
+        .main {
+            grid-row: 2;
+        }
+
+        .footer {
+            grid-row: 3;
+        }
