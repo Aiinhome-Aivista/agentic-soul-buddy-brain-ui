@@ -4,6 +4,7 @@ import Dashboard from "../../pages/dashboard/Dashboard"
 import UploadFiles from "../../pages/uploadFiles/UploadFiles"
 import Analysis from "../../pages/analysis/Analysis"
 import AnalysisDashboard from "../../pages/analysis/Analysis"
+import Expert from "../../pages/expert/Expert"
 
 function Index() {
   return (
@@ -12,6 +13,7 @@ function Index() {
       {/* <Route path="/" element={<DefaultLayout><Dashboard /></DefaultLayout>} /> */}
       <Route path="/upload" element={<DefaultLayout><UploadFiles /></DefaultLayout>} />
       <Route path="/analysis" element={<DefaultLayout><Analysis /></DefaultLayout>} />
+      <Route path="/expert" element={<DefaultLayout><Expert /></DefaultLayout>} />
     </Routes>
   )
 }

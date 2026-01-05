@@ -1,5 +1,5 @@
 import React from 'react'
-import { Database, Home, Upload } from "lucide-react";
+import { Database, Home, Upload, Users } from "lucide-react";
 import { Link } from 'react-router-dom';
 
 function Header() {
@@ -18,6 +18,9 @@ function Header() {
           </Link>
           <Link to="/upload" className="flex items-center gap-2 hover:text-white">
             <Upload className="w-4 h-4" /> Upload Files
+          </Link>
+          <Link to="/expert" className="flex items-center gap-2 hover:text-white">
+            <Users className="w-4 h-4" /> Expert
           </Link>
         </nav>
       </header>
