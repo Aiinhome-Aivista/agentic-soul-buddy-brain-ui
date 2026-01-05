@@ -108,7 +108,7 @@
 //       }
 
 //       // 4️⃣ Optional — Chat Insights Upload (independent)
-//       callApi("http://72.61.226.68:3004/upload_files", "Chat Insights Upload API").then(
+//       callApi("http://122.163.121.176:3004/upload_files", "Chat Insights Upload API").then(
 //         (chatInsightsUpload) => {
 //           if (chatInsightsUpload?.session_id) {
 //             localStorage.setItem("session_id", chatInsightsUpload.session_id);
@@ -291,7 +291,7 @@ function UploadFiles() {
         }
 
         // 4️⃣ Optional — Chat Insights Upload (independent)
-        callApi("http://72.61.226.68:3004/upload_files", "Chat Insights Upload API").then(
+        callApi("http://122.163.121.176:3004/upload_files", "Chat Insights Upload API").then(
           (chatInsightsUpload) => {
             if (chatInsightsUpload?.session_id) {
               localStorage.setItem("session_id", chatInsightsUpload.session_id);
