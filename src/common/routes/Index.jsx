@@ -6,6 +6,7 @@ import Analysis from "../../pages/analysis/Analysis"
 import AnalysisDashboard from "../../pages/analysis/Analysis"
 import Expert from "../../pages/expert/Expert"
 import ClientDetails from "../../pages/expert/ClientDetails"
+import SessionDetails from "../../pages/expert/SessionDetails"
 
 function Index() {
   return (
@@ -16,6 +17,7 @@ function Index() {
       <Route path="/analysis" element={<DefaultLayout><Analysis /></DefaultLayout>} />
       <Route path="/expert" element={<DefaultLayout><Expert /></DefaultLayout>} />
       <Route path="/expert/client/:userId" element={<DefaultLayout><ClientDetails /></DefaultLayout>} />
+      <Route path="/session/:sessionId" element={<DefaultLayout><SessionDetails /></DefaultLayout>} />
     </Routes>
   )
 }

@@ -243,13 +243,14 @@ function Expert() {
           return (
             <div 
               key={user.user_id} 
+              onClick={() => navigate(`/expert/client/${user.user_id}`)}
               className={`bg-[#1e293b] rounded-xl  hover:bg-[#253347] transition-all cursor-pointer group`}
             >
               <div className="p-4">
                 {/* User Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#795EFF] to-[#5a3fd4] rounded-full flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#795EFF] to-[#5a3fd4] rounded-full flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0 uppercase">
                       {user.full_name?.charAt(0) || '?'}
                     </div>
                     <div className="min-w-0">
