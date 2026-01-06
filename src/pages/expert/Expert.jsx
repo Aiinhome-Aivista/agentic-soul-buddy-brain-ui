@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, Heart, Brain, Activity, Search, Filter, 
   Mail, Calendar, Briefcase, UserCircle, AlertCircle,
   CheckCircle, Clock, ChevronRight, Smile, Frown, Meh, RefreshCw
 } from 'lucide-react';
 import { expertBaseUrl } from '../../env/env';
+import { apiService } from '../../service/ApiService';
 
 function Expert() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [users, setUsers] = useState([]);
@@ -19,9 +22,15 @@ function Expert() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${expertBaseUrl}users`);
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
+      const data = await apiService({
+        url: `${expertBaseUrl}users`,
+        method: 'GET'
+      });
+      
+      if (data.error) {
+        throw new Error(data.message || 'Failed to fetch users');
+      }
+      
       setUsers(data.data || []);
       setTotalCount(data.count || 0);
     } catch (err) {
@@ -300,7 +309,10 @@ function Expert() {
                 <p className="text-[10px] text-slate-500 truncate">
                   Updated: {formatDate(user.updated_at)}
                 </p>
-                <button className="text-[#795EFF] hover:text-[#9d85ff] text-xs font-medium flex items-center gap-0.5 transition-colors flex-shrink-0">
+                <button 
+                  onClick={() => navigate(`/expert/client/${user.user_id}`)}
+                  className="text-[#795EFF] hover:text-[#9d85ff] text-xs font-medium flex items-center gap-0.5 transition-colors flex-shrink-0"
+                >
                   View <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
