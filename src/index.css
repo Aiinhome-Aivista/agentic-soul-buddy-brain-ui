@@ -121,3 +121,83 @@ html, body {
   background: #334155;
   color: #f1f5f9;
 }
+
+/* PrimeReact MultiSelect Customization */
+.p-multiselect {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.p-multiselect:hover {
+  border-color: #795eff;
+}
+
+.p-multiselect .p-multiselect-label {
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+}
+
+.p-multiselect .p-multiselect-label.p-placeholder {
+  color: #94a3b8;
+}
+
+.p-multiselect .p-multiselect-trigger {
+  color: #94a3b8;
+  width: 2.5rem;
+}
+
+.p-multiselect-panel {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+}
+
+.p-multiselect-panel .p-multiselect-header {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-bottom: 1px solid #475569;
+  padding: 0.5rem;
+}
+
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+}
+
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item:hover {
+  background: #334155;
+}
+
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item.p-highlight {
+  background: #334155;
+  color: #ffffff;
+}
+
+.p-multiselect-panel .p-checkbox .p-checkbox-box {
+  background: #1e293b;
+  border-color: #64748b;
+}
+
+.p-multiselect-panel .p-checkbox .p-checkbox-box.p-highlight {
+  background: #795eff;
+  border-color: #795eff;
+}
+
+.p-multiselect .p-multiselect-token {
+  background: #334155;
+  color: #e2e8f0;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.p-multiselect-close {
+  color: #94a3b8;
+}
+
+.p-multiselect-close:hover {
+  color: #e2e8f0;
+}
