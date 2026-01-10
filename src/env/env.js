@@ -1,1 +1,1 @@
-export const baseUrl = "https://aivista.co.in";
+export const baseUrl = "https://aivista.co.in/";
