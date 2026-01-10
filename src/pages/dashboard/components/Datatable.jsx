@@ -391,21 +391,14 @@ export default function Datatable() {
       }
     };
     fetchActiveSessions();
-
-    // 🆕 Initialize selection from previous state if available in LocalStorage
-    const saved = localStorage.getItem("active_multi_sessions");
-    if (saved) setSelectedActiveSessions(JSON.parse(saved));
   }, []);
 
-  // 🆕 HANDLER: Save selection to LocalStorage AND Database
+  // 🆕 HANDLER: Save selection to Database
   const handleActiveSessionChange = async (e) => {
     const value = e.value;
     setSelectedActiveSessions(value);
 
-    // 1. Save to LocalStorage (for Browser/Admin Chat)
-    localStorage.setItem("active_multi_sessions", JSON.stringify(value));
-
-    // 2. Save to Database (for Voice Assistant)
+    // Save to Database (for Voice Assistant)
     try {
       await fetch(POST_url.updateActiveSessions, {
         method: "POST",
@@ -585,39 +578,6 @@ export default function Datatable() {
             placeholder="Select Active Sessions"
             maxSelectedLabels={2}
             className="w-full"
-            pt={{
-              // Root: Background Black, Text White
-              root: {
-                className:
-                  "w-full h-10 flex items-center border border-slate-600 rounded-lg bg-black text-white transition-colors hover:border-[#795eff]",
-              },
-              labelContainer: { className: "flex items-center h-full px-3" },
-              label: { className: "text-black text-sm" },
-              trigger: {
-                className:
-                  "flex items-center justify-center w-10 text-black bg-transparent",
-              },
-
-              // Dropdown Panel: Background Black, Text White
-              panel: {
-                className:
-                  "bg-black border border-slate-600 text-black rounded-lg shadow-xl mt-1",
-              },
-              item: {
-                className:
-                  "hover:bg-gray-900 text-black p-2 cursor-pointer transition-colors",
-              },
-              header: {
-                className:
-                  "bg-black text-black border-b border-slate-600 p-2 rounded-t-lg flex items-center",
-              },
-
-              // Checkbox styling
-              checkboxContainer: { className: "text-black" },
-              checkbox: { className: "border-slate-500 bg-black text-black" },
-              checkboxIcon: { className: "text-black" },
-              closeButton: { className: "text-black hover:text-gray-300" },
-            }}
           />
         </div>
 
