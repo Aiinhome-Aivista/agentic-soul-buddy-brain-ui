@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Users, Heart, Brain, Activity, Search, Filter, 
+import {
+  Users, Heart, Brain, Activity, Search, Filter,
   Mail, Calendar, Briefcase, UserCircle, AlertCircle,
   CheckCircle, Clock, ChevronRight, Smile, Frown, Meh, RefreshCw
 } from 'lucide-react';
-import { expertBaseUrl } from '../../env/env';
+import { baseUrl } from '../../env/env';
 import { apiService } from '../../service/ApiService';
 
 function Expert() {
@@ -23,14 +23,14 @@ function Expert() {
     setError(null);
     try {
       const data = await apiService({
-        url: `${expertBaseUrl}users`,
+        url: `${baseUrl}users`,
         method: 'GET'
       });
-      
+
       if (data.error) {
         throw new Error(data.message || 'Failed to fetch users');
       }
-      
+
       setUsers(data.data || []);
       setTotalCount(data.count || 0);
     } catch (err) {
@@ -72,23 +72,23 @@ function Expert() {
   // Filter users
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || 
-                          (filterStatus === 'needs-attention' && 
-                           (user.emotional_state?.toLowerCase().includes('not') || 
-                            user.health?.toLowerCase() === 'poor'));
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' ||
+      (filterStatus === 'needs-attention' &&
+        (user.emotional_state?.toLowerCase().includes('not') ||
+          user.health?.toLowerCase() === 'poor'));
     return matchesSearch && matchesFilter;
   });
 
   // Stats calculation
-  const needsAttention = users.filter(u => 
+  const needsAttention = users.filter(u =>
     u.emotional_state?.toLowerCase().includes('not') || u.health?.toLowerCase() === 'poor'
   ).length;
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', { 
-      month: 'short', day: 'numeric', year: 'numeric' 
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric'
     });
   };
 
@@ -112,7 +112,7 @@ function Expert() {
           <AlertCircle className="w-16 h-16 text-red-500" />
           <p className="text-red-400 text-lg">Failed to load clients</p>
           <p className="text-slate-500 text-sm">{error}</p>
-          <button 
+          <button
             onClick={fetchUsers}
             className="mt-4 px-6 py-2 bg-[#795EFF] hover:bg-[#6a4be8] rounded-lg text-white font-medium flex items-center gap-2"
           >
@@ -211,21 +211,19 @@ function Expert() {
         <div className="flex gap-2">
           <button
             onClick={() => setFilterStatus('all')}
-            className={`px-4 py-2.5 rounded-lg font-medium transition-all ${
-              filterStatus === 'all' 
-                ? 'bg-[#795EFF] text-white' 
+            className={`px-4 py-2.5 rounded-lg font-medium transition-all ${filterStatus === 'all'
+                ? 'bg-[#795EFF] text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`}
+              }`}
           >
             All Clients
           </button>
           <button
             onClick={() => setFilterStatus('needs-attention')}
-            className={`px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-              filterStatus === 'needs-attention' 
-                ? 'bg-red-500 text-white' 
+            className={`px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${filterStatus === 'needs-attention'
+                ? 'bg-red-500 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`}
+              }`}
           >
             <AlertCircle className="w-4 h-4" />
             Needs Attention
@@ -241,8 +239,8 @@ function Expert() {
           const EmotionIcon = emotionalStyle.icon;
 
           return (
-            <div 
-              key={user.user_id} 
+            <div
+              key={user.user_id}
               onClick={() => navigate(`/expert/client/${user.user_id}`)}
               className={`bg-[#1e293b] rounded-xl  hover:bg-[#253347] transition-all cursor-pointer group`}
             >
@@ -259,7 +257,7 @@ function Expert() {
                         <ChevronRight className="w-3 h-3 text-slate-500 group-hover:text-[#795EFF] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </h3>
                       <p className="text-slate-400 text-xs flex items-center gap-1 truncate">
-                        <Mail className="w-3 h-3 flex-shrink-0" /> 
+                        <Mail className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{user.email}</span>
                       </p>
                     </div>
@@ -310,7 +308,7 @@ function Expert() {
                 <p className="text-[10px] text-slate-500 truncate">
                   Updated: {formatDate(user.updated_at)}
                 </p>
-                <button 
+                <button
                   onClick={() => navigate(`/expert/client/${user.user_id}`)}
                   className="text-[#795EFF] hover:text-[#9d85ff] text-xs font-medium flex items-center gap-0.5 transition-colors flex-shrink-0"
                 >

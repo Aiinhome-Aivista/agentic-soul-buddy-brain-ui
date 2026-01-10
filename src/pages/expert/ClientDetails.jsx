@@ -20,7 +20,7 @@ import {
   MapPin,
   FileText,
 } from "lucide-react";
-import { expertBaseUrl, expertBaseUrl2 } from "../../env/env";
+import { baseUrl } from "../../env/env";
 import { apiService } from "../../service/ApiService";
 
 function ClientDetails() {
@@ -38,7 +38,7 @@ function ClientDetails() {
     setError(null);
     try {
       const data = await apiService({
-        url: `${expertBaseUrl}user_details`,
+        url: `${baseUrl}user_details`,
         method: "POST",
         data: { user_id: userId },
       });
@@ -62,7 +62,7 @@ function ClientDetails() {
     setSessionsLoading(true);
     try {
       const data = await apiService({
-        url: `${expertBaseUrl}user-sessions/${userId}`,
+        url: `${baseUrl}user-sessions/${userId}`,
         method: 'GET'
       });
 
@@ -269,7 +269,7 @@ function ClientDetails() {
               </div>
               <div className="flex flex-col gap-2 items-start">
                 <h2 className="text-xl font-bold">{client.full_name}</h2>
-                
+
                 <span
                   className={`${healthStyle.bg} ${healthStyle.text} text-sm px-3 py-1 rounded-full font-medium`}
                 >
@@ -370,14 +370,13 @@ function ClientDetails() {
               <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <Activity
-                    className={`w-8 h-8 ${
-                      healthStyle.bg === "bg-emerald-500" ||
+                    className={`w-8 h-8 ${healthStyle.bg === "bg-emerald-500" ||
                       healthStyle.bg === "bg-green-500"
-                        ? "text-green-400"
-                        : healthStyle.bg === "bg-yellow-500"
+                      ? "text-green-400"
+                      : healthStyle.bg === "bg-yellow-500"
                         ? "text-yellow-400"
                         : "text-red-400"
-                    }`}
+                      }`}
                   />
                   <div>
                     <p className="text-slate-400 text-xs">Overall Health</p>
@@ -410,7 +409,7 @@ function ClientDetails() {
                 ({sessions.length} sessions)
               </span>
             </h3>
-            
+
             {sessionsLoading ? (
               <div className="text-center py-8">
                 <div className="w-8 h-8 border-3 border-[#795EFF] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
