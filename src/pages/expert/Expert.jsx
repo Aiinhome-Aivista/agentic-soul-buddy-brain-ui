@@ -154,7 +154,7 @@ function Expert() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-5 rounded-xl shadow-lg">
           <div className="flex items-center justify-between">
             <div>
@@ -185,7 +185,7 @@ function Expert() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-5 rounded-xl shadow-lg">
+        {/* <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-5 rounded-xl shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm">Sessions Today</p>
@@ -193,7 +193,7 @@ function Expert() {
             </div>
             <Clock className="w-12 h-12 text-purple-300 opacity-80" />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Search and Filter Bar */}
