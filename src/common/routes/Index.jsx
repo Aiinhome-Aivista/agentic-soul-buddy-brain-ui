@@ -7,17 +7,80 @@ import AnalysisDashboard from "../../pages/analysis/Analysis"
 import Expert from "../../pages/expert/Expert"
 import ClientDetails from "../../pages/expert/ClientDetails"
 import SessionDetails from "../../pages/expert/SessionDetails"
+import Login from "../../pages/auth/Login"
+import ProtectedRoute from "./ProtectedRoute"
 
 function Index() {
   return (
     <Routes>
-      <Route path="/" element={<DefaultLayout><Dashboard /></DefaultLayout>} />
-      {/* <Route path="/" element={<DefaultLayout><Dashboard /></DefaultLayout>} /> */}
-      <Route path="/upload" element={<DefaultLayout><UploadFiles /></DefaultLayout>} />
-      <Route path="/analysis" element={<DefaultLayout><Analysis /></DefaultLayout>} />
-      <Route path="/expert" element={<DefaultLayout><Expert /></DefaultLayout>} />
-      <Route path="/expert/client/:userId" element={<DefaultLayout><ClientDetails /></DefaultLayout>} />
-      <Route path="/session/:sessionId" element={<DefaultLayout><SessionDetails /></DefaultLayout>} />
+      {/* Public Route */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Protected Routes with Role-Based Access */}
+      {/* Home - Only super_admin */}
+      <Route 
+        path="/" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><Dashboard /></DefaultLayout>} 
+            allowedRoles={['super_admin']} 
+          />
+        } 
+      />
+
+      {/* Upload - super_admin and admin */}
+      <Route 
+        path="/upload" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><UploadFiles /></DefaultLayout>} 
+            allowedRoles={['super_admin', 'admin']} 
+          />
+        } 
+      />
+
+      {/* Analysis - Only super_admin */}
+      <Route 
+        path="/analysis" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><Analysis /></DefaultLayout>} 
+            allowedRoles={['super_admin']} 
+          />
+        } 
+      />
+
+      {/* Expert Pages - super_admin and expert */}
+      <Route 
+        path="/expert" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><Expert /></DefaultLayout>} 
+            allowedRoles={['super_admin', 'expert']} 
+          />
+        } 
+      />
+      <Route 
+        path="/expert/client/:userId" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><ClientDetails /></DefaultLayout>} 
+            allowedRoles={['super_admin', 'expert']} 
+          />
+        } 
+      />
+      <Route 
+        path="/session/:sessionId" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><SessionDetails /></DefaultLayout>} 
+            allowedRoles={['super_admin', 'expert']} 
+          />
+        } 
+      />
+
+      {/* Fallback - Redirect to login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )
 }

@@ -26,7 +26,7 @@
 // }
 
 
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
 export const Context = createContext();
 
@@ -48,6 +48,29 @@ export function ContextProvider({ children }) {
   const [isTrackerDataLoading, setIsTrackerDataLoading] = useState(false);
   const [hasStructuredData, setHasStructuredData] = useState(false);
   const [unstructuredFilesCount, setUnStructuredFilesCount] = useState(0)
+
+  // 🔹 Authentication state
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  // 🔹 Persist user data to localStorage
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+  }, [user]);
+
+  // 🔹 Logout function
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  };
 
   // 🔹 Helper to update session data
   const updateSessionData = (sessionName, newData) => {
@@ -77,7 +100,9 @@ export function ContextProvider({ children }) {
         trackerData, setTrackerData, // ✅ provide tracker data
         isTrackerDataLoading, setIsTrackerDataLoading,
         hasStructuredData, setHasStructuredData,
-        unstructuredFilesCount, setUnStructuredFilesCount // ✅ provide shared loading state
+        unstructuredFilesCount, setUnStructuredFilesCount, // ✅ provide shared loading state
+        user, setUser, // ✅ provide user auth state
+        logout // ✅ provide logout function
       }}
     >
       {children}
