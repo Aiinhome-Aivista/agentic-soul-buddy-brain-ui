@@ -18,7 +18,7 @@ export const POST_url = {
     uploadFiles: `${API_BASE_URL}/upload_files`, // Chat Insights Upload
     insightsChat: `${API_BASE_URL}/insights_chat`, // Chat Insights
     userDetails: `${API_BASE_URL}/user_details`, // Expert - User Details
-    expertInsight: `${API_BASE_URL}/session/session-id/expert-insight`, // Expert Insight
+    expertInsight: `${API_BASE_URL}/expert-insight`, // Expert Insight
 };
 
 export const GET_url = {
