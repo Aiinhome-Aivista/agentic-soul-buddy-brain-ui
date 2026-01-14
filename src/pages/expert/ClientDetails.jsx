@@ -327,14 +327,15 @@ function ClientDetails() {
                 <CheckCircle className="w-5 h-5 text-[#795EFF]" />
                 Subscription
               </h3>
-              <div className="">
-                <div className="bg-slate-800/50 p-4 rounded-lg">
+              <div className="grid grid-cols-2 gap-2">
+
+                <div className="col-span-1 bg-slate-800/50 p-4 rounded-lg">
                   <p className="text-slate-400 text-xs mb-1">Plan</p>
                   <p className="text-lg font-semibold">
                     {subscription.plan_name || "N/A"}
                   </p>
                 </div>
-                <div className="bg-slate-800/50 p-4 rounded-lg">
+                <div className="col-span-1 bg-slate-800/50 p-4 rounded-lg">
                   <p className="text-slate-400 text-xs mb-1">Status</p>
                   <span
                     className={`${getSubscriptionStyle(subscription.status).bg} ${getSubscriptionStyle(subscription.status).text} text-sm px-3 py-1 rounded-full font-medium inline-block`}
@@ -342,20 +343,20 @@ function ClientDetails() {
                     {getSubscriptionStyle(subscription.status).label}
                   </span>
                 </div>
-                <div className="bg-slate-800/50 p-4 rounded-lg">
+                <div className="col-span-1 bg-slate-800/50 p-4 rounded-lg">
                   <p className="text-slate-400 text-xs mb-1">Start Date</p>
                   <p className="text-sm font-semibold">
                     {formatDate(subscription.start_date)}
                   </p>
                 </div>
-                <div className="bg-slate-800/50 p-4 rounded-lg">
+                <div className="col-span-1 bg-slate-800/50 p-4 rounded-lg">
                   <p className="text-slate-400 text-xs mb-1">End Date</p>
                   <p className="text-sm font-semibold">
                     {formatDate(subscription.end_date)}
                   </p>
                 </div>
                 {subscription.validity_days_left !== undefined && (
-                  <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                  <div className="p-4 col-span-2 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-blue-400" />
                       <p className="text-sm text-blue-300">
