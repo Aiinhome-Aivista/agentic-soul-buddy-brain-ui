@@ -7,6 +7,7 @@ import AnalysisDashboard from "../../pages/analysis/Analysis"
 import Expert from "../../pages/expert/Expert"
 import ClientDetails from "../../pages/expert/ClientDetails"
 import SessionDetails from "../../pages/expert/SessionDetails"
+import AdminManagement from "../../pages/admin/AdminManagement"
 import Login from "../../pages/auth/Login"
 import ProtectedRoute from "./ProtectedRoute"
 
@@ -75,6 +76,17 @@ function Index() {
           <ProtectedRoute 
             element={<DefaultLayout><SessionDetails /></DefaultLayout>} 
             allowedRoles={['super_admin', 'expert']} 
+          />
+        } 
+      />
+
+      {/* Admin Management - Only super_admin */}
+      <Route 
+        path="/admin-management" 
+        element={
+          <ProtectedRoute 
+            element={<DefaultLayout><AdminManagement /></DefaultLayout>} 
+            allowedRoles={['super_admin']} 
           />
         } 
       />

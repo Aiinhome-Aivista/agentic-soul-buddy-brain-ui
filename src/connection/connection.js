@@ -19,6 +19,7 @@ export const POST_url = {
     insightsChat: `${API_BASE_URL}/insights_chat`, // Chat Insights
     userDetails: `${API_BASE_URL}/user_details`, // Expert - User Details
     expertInsight: `${API_BASE_URL}/expert-insight`, // Expert Insight
+    adminRegistration: `${API_BASE_URL}/admin_expert_registration`, // Admin Management - Register
 };
 
 export const GET_url = {
@@ -29,6 +30,7 @@ export const GET_url = {
     userSessions: (userId) => `${API_BASE_URL}/user-sessions/${userId}`, // Expert - User Sessions
     sessionDetails: (sessionId) => `${API_BASE_URL}/session/${sessionId}`, // Expert - Session Details
     ragChat: `${API_BASE_URL}/rag_chat`, // Vector Insights RAG Chat
+    adminsList: `${API_BASE_URL}/admin_expert_list`, // Admin Management - List All
 };
 
 // DELETE endpoints
