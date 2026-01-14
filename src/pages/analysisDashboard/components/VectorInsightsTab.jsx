@@ -176,7 +176,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Send } from "lucide-react";
 
 // ✅ NOTE: Ensure this URL matches your backend setup
-const API_URL = "http://122.163.121.176:3004/rag_chat";
+const API_URL = "https://aivista.co.in/rag_chat";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

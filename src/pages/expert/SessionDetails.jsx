@@ -10,7 +10,7 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import { expertBaseUrl } from "../../env/env";
+import { baseUrl } from "../../env/env";
 import { apiService } from "../../service/ApiService";
 
 function SessionDetails() {
@@ -26,7 +26,7 @@ function SessionDetails() {
     setError(null);
     try {
       const data = await apiService({
-        url: `${expertBaseUrl}session/${sessionId}`,
+        url: `${baseUrl}session/${sessionId}`,
         method: "GET",
       });
 

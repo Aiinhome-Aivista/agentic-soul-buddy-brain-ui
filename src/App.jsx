@@ -10,7 +10,12 @@ function App() {
   return (
     <>
       <PrimeReactProvider>
-        <BrowserRouter>
+        {/* <BrowserRouter>
+          <ContextProvider>
+            <Index />
+          </ContextProvider>
+        </BrowserRouter> */}
+        <BrowserRouter basename="/admin">
           <ContextProvider>
             <Index />
           </ContextProvider>

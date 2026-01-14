@@ -1,5 +1,5 @@
 // const API_BASE_URL = "http://72.61.226.68:3004"
-const API_BASE_URL = "http://122.163.121.176:3004"
+const API_BASE_URL = "https://aivista.co.in";
 
 export const POST_url = {
     dataTypes: `${API_BASE_URL}/analyze_files`,
