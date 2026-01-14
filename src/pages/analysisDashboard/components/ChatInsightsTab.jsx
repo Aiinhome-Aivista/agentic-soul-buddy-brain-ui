@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import { POST_url } from '../../../connection/connection';
 
 const ChatInsightsTab = () => {
   const [insights, setInsights] = useState("");
@@ -12,7 +13,7 @@ const ChatInsightsTab = () => {
   const fetchInsights = async (pageNum = 1) => {
     try {
       setLoading(true);
-      const response = await axios.post("http://192.168.1.77:3031/insights_chat", {
+      const response = await axios.post(POST_url.insightsChat, {
         user_query: "",
         page: pageNum,
       });

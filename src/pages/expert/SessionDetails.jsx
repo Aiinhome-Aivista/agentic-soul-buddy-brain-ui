@@ -10,8 +10,8 @@ import {
   Clock,
   Calendar,
 } from "lucide-react";
-import { baseUrl } from "../../env/env";
 import { apiService } from "../../service/ApiService";
+import { GET_url } from '../../connection/connection';
 
 function SessionDetails() {
   const { sessionId } = useParams();
@@ -26,7 +26,7 @@ function SessionDetails() {
     setError(null);
     try {
       const data = await apiService({
-        url: `${baseUrl}session/${sessionId}`,
+        url: GET_url.sessionDetails(sessionId),
         method: "GET",
       });
 

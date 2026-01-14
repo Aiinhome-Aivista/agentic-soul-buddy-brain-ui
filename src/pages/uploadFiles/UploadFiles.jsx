@@ -133,7 +133,7 @@ function UploadFiles() {
                 }
 
                 // 4️⃣ Optional — Chat Insights Upload (independent)
-                callApi("https://aivista.co.in/upload_files", "Chat Insights Upload API").then(
+                callApi(POST_url.uploadFiles, "Chat Insights Upload API").then(
                     (chatInsightsUpload) => {
                         if (chatInsightsUpload?.session_id) {
                             localStorage.setItem("session_id", chatInsightsUpload.session_id);

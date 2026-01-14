@@ -20,8 +20,8 @@ import {
   MapPin,
   FileText,
 } from "lucide-react";
-import { baseUrl } from "../../env/env";
 import { apiService } from "../../service/ApiService";
+import { GET_url, POST_url } from '../../connection/connection';
 
 function ClientDetails() {
   const { userId } = useParams();
@@ -38,7 +38,7 @@ function ClientDetails() {
     setError(null);
     try {
       const data = await apiService({
-        url: `${baseUrl}user_details`,
+        url: POST_url.userDetails,
         method: "POST",
         data: { user_id: userId },
       });
@@ -62,7 +62,7 @@ function ClientDetails() {
     setSessionsLoading(true);
     try {
       const data = await apiService({
-        url: `${baseUrl}user-sessions/${userId}`,
+        url: GET_url.userSessions(userId),
         method: 'GET'
       });
 

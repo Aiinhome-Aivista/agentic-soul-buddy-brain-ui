@@ -5,8 +5,8 @@ import {
   Mail, Calendar, Briefcase, UserCircle, AlertCircle,
   CheckCircle, Clock, ChevronRight, Smile, Frown, Meh, RefreshCw
 } from 'lucide-react';
-import { baseUrl } from '../../env/env';
 import { apiService } from '../../service/ApiService';
+import { GET_url } from '../../connection/connection';
 
 function Expert() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ function Expert() {
     setError(null);
     try {
       const data = await apiService({
-        url: `${baseUrl}users`,
+        url: GET_url.users,
         method: 'GET'
       });
 
