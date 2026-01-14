@@ -17,6 +17,17 @@ function Header() {
   const canAccessUpload = user?.role === 'super_admin' || user?.role === 'admin';
   const canAccessExpert = user?.role === 'super_admin' || user?.role === 'expert';
 
+  // Get initials from full name
+  const getInitials = (name) => {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div>
       <header className="flex justify-between items-start pb-10 w-full">
@@ -45,16 +56,27 @@ function Header() {
             )}
           </nav>
           {user && (
-            <div className="flex items-center gap-4 pl-6 border-l border-slate-600">
-              <span className="text-sm text-slate-400">
-                {user.full_name} ({user.role})
-              </span>
+            <div className="flex items-center gap-3 pl-6 border-l border-slate-600">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                  {getInitials(user.full_name)}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-white">
+                    {user.full_name}
+                  </span>
+                  <span className="text-xs text-slate-400 capitalize">
+                    {user.role.replace('_', ' ')}
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-slate-300 hover:text-red-400 transition"
+                className="flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
                 title="Logout"
               >
                 <LogOut className="w-4 h-4" />
+                <span className="text-sm">Logout</span>
               </button>
             </div>
           )}
