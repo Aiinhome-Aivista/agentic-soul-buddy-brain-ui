@@ -2,6 +2,7 @@
 const API_BASE_URL = "https://aivista.co.in";
 
 export const POST_url = {
+    login: `${API_BASE_URL}/admin_expert_login`,
     dataTypes: `${API_BASE_URL}/analyze_files`,
     patterns: `${API_BASE_URL}/patterns`,
     insights: `${API_BASE_URL}/insight`,
