@@ -70,7 +70,7 @@ function Index() {
         } 
       />
       <Route 
-        path="/session/:sessionId" 
+        path="/expert/session/:userId/:sessionId" 
         element={
           <ProtectedRoute 
             element={<DefaultLayout><SessionDetails /></DefaultLayout>} 

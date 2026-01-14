@@ -27,6 +27,7 @@ function ClientDetails() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [client, setClient] = useState(null);
+  const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sessions, setSessions] = useState([]);
@@ -43,11 +44,13 @@ function ClientDetails() {
         data: { user_id: userId },
       });
 
-      if (data.error) {
+      if (data.error || !data.success) {
         throw new Error(data.message || "Failed to fetch client details");
       }
 
-      setClient(data.data || data);
+      // Extract user and subscription from nested response
+      setClient(data.data?.user || null);
+      setSubscription(data.data?.subscription || null);
     } catch (err) {
       console.error("Error fetching client details:", err);
       setError(err.message);
@@ -132,6 +135,18 @@ function ClientDetails() {
       border: "border-yellow-500/50",
       icon: Meh,
     };
+  };
+
+  // Get subscription status styling
+  const getSubscriptionStyle = (status) => {
+    const lowerStatus = status?.toLowerCase() || "";
+    if (lowerStatus === "active")
+      return { bg: "bg-green-500", text: "text-white", label: "Active" };
+    if (lowerStatus === "expired")
+      return { bg: "bg-red-500", text: "text-white", label: "Expired" };
+    if (lowerStatus === "pending")
+      return { bg: "bg-yellow-500", text: "text-black", label: "Pending" };
+    return { bg: "bg-gray-500", text: "text-white", label: "Unknown" };
   };
 
   // Get health status styling
@@ -260,7 +275,7 @@ function ClientDetails() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Profile Card */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
           <div className="bg-[#1e293b] rounded-xl p-6">
             {/* Profile Header */}
             <div className="flex gap-3 items-center text-center mb-6">
@@ -279,7 +294,7 @@ function ClientDetails() {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-3 border-t border-slate-700 pt-4">
+            <div className="space-y-3 pt-4">
               <div className="flex items-center gap-3 text-slate-300">
                 <Mail className="w-4 h-4 text-slate-500" />
                 <span className="text-sm truncate">{client.email}</span>
@@ -304,6 +319,54 @@ function ClientDetails() {
               </div>
             </div>
           </div>
+
+          {/* Subscription Details */}
+          {subscription && (
+            <div className="bg-[#1e293b] rounded-xl p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-[#795EFF]" />
+                Subscription
+              </h3>
+              <div className="">
+                <div className="bg-slate-800/50 p-4 rounded-lg">
+                  <p className="text-slate-400 text-xs mb-1">Plan</p>
+                  <p className="text-lg font-semibold">
+                    {subscription.plan_name || "N/A"}
+                  </p>
+                </div>
+                <div className="bg-slate-800/50 p-4 rounded-lg">
+                  <p className="text-slate-400 text-xs mb-1">Status</p>
+                  <span
+                    className={`${getSubscriptionStyle(subscription.status).bg} ${getSubscriptionStyle(subscription.status).text} text-sm px-3 py-1 rounded-full font-medium inline-block`}
+                  >
+                    {getSubscriptionStyle(subscription.status).label}
+                  </span>
+                </div>
+                <div className="bg-slate-800/50 p-4 rounded-lg">
+                  <p className="text-slate-400 text-xs mb-1">Start Date</p>
+                  <p className="text-sm font-semibold">
+                    {formatDate(subscription.start_date)}
+                  </p>
+                </div>
+                <div className="bg-slate-800/50 p-4 rounded-lg">
+                  <p className="text-slate-400 text-xs mb-1">End Date</p>
+                  <p className="text-sm font-semibold">
+                    {formatDate(subscription.end_date)}
+                  </p>
+                </div>
+                {subscription.validity_days_left !== undefined && (
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-blue-400" />
+                      <p className="text-sm text-blue-300">
+                        <span className="font-bold">{subscription.validity_days_left}</span> days left
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column - Details */}
@@ -425,7 +488,7 @@ function ClientDetails() {
                 {sessions.map((session, index) => (
                   <div
                     key={session.session_id || index}
-                    onClick={() => navigate(`/session/${session.session_id}`)}
+                    onClick={() => navigate(`/expert/session/${userId}/${session.session_id}`)}
                     className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:bg-slate-800 transition-colors cursor-pointer"
                   >
                     <div className="flex items-start justify-between gap-4">
