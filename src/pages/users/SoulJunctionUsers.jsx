@@ -19,7 +19,7 @@ function SoulJunctionUsers() {
         setError(null);
         try {
             const data = await apiService({
-                url: GET_url.users,
+                url: GET_url.souljunction_users,
                 method: 'GET'
             });
 

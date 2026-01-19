@@ -31,7 +31,7 @@ export const GET_url = {
   ragChat: `${API_BASE_URL}/rag_chat`, // Vector Insights RAG Chat
   adminsList: `${API_BASE_URL}/admin_expert_list`, // Admin Management - List All
   captcha: `${API_BASE_URL}/generate_captcha`,
-  users: `${API_BASE_URL}/souljunction_users`,
+  souljunction_users: `${API_BASE_URL}/souljunction_users`,
 };
 
 // DELETE endpoints
