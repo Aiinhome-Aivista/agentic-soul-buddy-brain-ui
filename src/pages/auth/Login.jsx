@@ -1,19 +1,46 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Database, LogIn, Eye, EyeOff } from 'lucide-react';
+import { Database, LogIn, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { Context } from '../../common/helper/Context';
 import { apiService } from '../../service/ApiService';
-import { POST_url } from '../../connection/connection';
+import { POST_url, GET_url } from '../../connection/connection';
 
 function Login() {
   const navigate = useNavigate();
   const { setUser, setLoadingView } = useContext(Context);
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    captchaValue: ''
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaText, setCaptchaText] = useState('');
+  const [captchaId, setCaptchaId] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
+
+  // Fetch captcha on component mount
+  useEffect(() => {
+    fetchCaptcha();
+  }, []);
+
+  const fetchCaptcha = async () => {
+    setCaptchaLoading(true);
+    try {
+      const response = await apiService({
+        url: GET_url.captcha,
+        method: 'GET'
+      });
+      if (response.status === 'success') {
+        setCaptchaText(response.captchaText);
+        setCaptchaId(response.captchaId);
+      }
+    } catch (err) {
+      console.error('Captcha fetch error:', err);
+    } finally {
+      setCaptchaLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -34,7 +61,9 @@ function Login() {
         method: 'POST',
         data: {
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          captchaId: captchaId,
+          captchaValue: formData.captchaValue
         }
       });
 
@@ -61,10 +90,12 @@ function Login() {
         }
       } else {
         setError(response.message || 'Login failed. Please try again.');
+        fetchCaptcha(); // Refresh captcha on failed login
       }
     } catch (err) {
       setError('An error occurred during login. Please try again.');
       console.error('Login error:', err);
+      fetchCaptcha(); // Refresh captcha on error
     } finally {
       setLoadingView(false);
     }
@@ -144,6 +175,37 @@ function Login() {
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* Captcha Input */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Captcha
+              </label>
+              <div className="flex gap-2 mb-2">
+                <div className="flex-1 bg-slate-900/50 border border-slate-600 rounded-xl flex items-center justify-center text-white text-lg font-bold tracking-widest select-none font-mono relative overflow-hidden h-[50px]">
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '4px 4px' }}></div>
+                  <span className="relative z-10">{captchaLoading ? '...' : captchaText}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchCaptcha}
+                  className="p-3 bg-slate-900/50 hover:bg-slate-700/50 border border-slate-600 rounded-xl text-slate-400 hover:text-slate-200 transition-colors"
+                  title="Refresh Captcha"
+                >
+                  <RefreshCw className={`w-5 h-5 ${captchaLoading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+              <input
+                type="text"
+                id="captchaValue"
+                name="captchaValue"
+                value={formData.captchaValue}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 sm:py-3.5 bg-slate-900/50 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="Enter captcha"
+              />
             </div>
 
             {/* Error Message */}

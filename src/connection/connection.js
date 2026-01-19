@@ -22,14 +22,16 @@ export const POST_url = {
 };
 
 export const GET_url = {
-    TableTracker: `${API_BASE_URL}/tracker`,
-    viewInfo: (sessionName) => `${API_BASE_URL}/view_info?session_name=${sessionName}`,
-    fetchSessions: `${API_BASE_URL}/successful_sessions`,
-    users: `${API_BASE_URL}/users`, // Expert - All Users
-    userSessions: (userId) => `${API_BASE_URL}/user-sessions/${userId}`, // Expert - User Sessions
-    sessionDetails: (sessionId) => `${API_BASE_URL}/session/${sessionId}`, // Expert - Session Details
-    ragChat: `${API_BASE_URL}/rag_chat`, // Vector Insights RAG Chat
-    adminsList: `${API_BASE_URL}/admin_expert_list`, // Admin Management - List All
+  TableTracker: `${API_BASE_URL}/tracker`,
+  viewInfo: (sessionName) =>
+    `${API_BASE_URL}/view_info?session_name=${sessionName}`,
+  fetchSessions: `${API_BASE_URL}/successful_sessions`,
+  users: `${API_BASE_URL}/users`, // Expert - All Users
+  userSessions: (userId) => `${API_BASE_URL}/user-sessions/${userId}`, // Expert - User Sessions
+  sessionDetails: (sessionId) => `${API_BASE_URL}/session/${sessionId}`, // Expert - Session Details
+  ragChat: `${API_BASE_URL}/rag_chat`, // Vector Insights RAG Chat
+  adminsList: `${API_BASE_URL}/admin_expert_list`, // Admin Management - List All
+  captcha: `${API_BASE_URL}/generate_captcha`,
 };
 
 // DELETE endpoints
