@@ -13,7 +13,7 @@ function Header() {
   };
 
   // Determine which navigation items to show based on role
-  const canAccessHome = user?.role === 'super_admin';
+  const canAccessHome = user?.role === 'super_admin' || user?.role === 'admin';
   const canAccessUpload = user?.role === 'super_admin' || user?.role === 'admin';
   const canAccessExpert = user?.role === 'super_admin' || user?.role === 'expert';
   const canAccessAdminManagement = user?.role === 'super_admin';

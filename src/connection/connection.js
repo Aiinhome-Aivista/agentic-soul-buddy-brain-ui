@@ -1,5 +1,4 @@
-// const API_BASE_URL = "http://72.61.226.68:3004"
-// const API_BASE_URL = "https://aivista.co.in";
+
 import { baseUrl } from '../env/env';
 
 const API_BASE_URL = baseUrl.replace(/\/$/, ''); // Remove trailing slash if exists

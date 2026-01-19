@@ -24,7 +24,8 @@ function Index() {
         element={
           <ProtectedRoute 
             element={<DefaultLayout><Dashboard /></DefaultLayout>} 
-            allowedRoles={['super_admin']} 
+
+            allowedRoles={['super_admin','admin']} 
           />
         } 
       />
