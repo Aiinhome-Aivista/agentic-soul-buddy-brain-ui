@@ -8,6 +8,7 @@ import Expert from "../../pages/expert/Expert"
 import ClientDetails from "../../pages/expert/ClientDetails"
 import SessionDetails from "../../pages/expert/SessionDetails"
 import AdminManagement from "../../pages/admin/AdminManagement"
+import SoulJunctionUsers from "../../pages/users/SoulJunctionUsers"
 import Login from "../../pages/auth/Login"
 import ProtectedRoute from "./ProtectedRoute"
 
@@ -19,77 +20,88 @@ function Index() {
 
       {/* Protected Routes with Role-Based Access */}
       {/* Home - Only super_admin */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><Dashboard /></DefaultLayout>} 
+          <ProtectedRoute
+            element={<DefaultLayout><Dashboard /></DefaultLayout>}
 
-            allowedRoles={['super_admin','admin']} 
+            allowedRoles={['super_admin', 'admin']}
           />
-        } 
+        }
       />
 
       {/* Upload - super_admin and admin */}
-      <Route 
-        path="/upload" 
+      <Route
+        path="/upload"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><UploadFiles /></DefaultLayout>} 
-            allowedRoles={['super_admin', 'admin']} 
+          <ProtectedRoute
+            element={<DefaultLayout><UploadFiles /></DefaultLayout>}
+            allowedRoles={['super_admin', 'admin']}
           />
-        } 
+        }
       />
 
       {/* Analysis - Only super_admin */}
-      <Route 
-        path="/analysis" 
+      <Route
+        path="/analysis"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><Analysis /></DefaultLayout>} 
-            allowedRoles={['super_admin']} 
+          <ProtectedRoute
+            element={<DefaultLayout><Analysis /></DefaultLayout>}
+            allowedRoles={['super_admin']}
           />
-        } 
+        }
       />
 
       {/* Expert Pages - super_admin and expert */}
-      <Route 
-        path="/expert" 
+      <Route
+        path="/expert"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><Expert /></DefaultLayout>} 
-            allowedRoles={['super_admin', 'expert']} 
+          <ProtectedRoute
+            element={<DefaultLayout><Expert /></DefaultLayout>}
+            allowedRoles={['super_admin', 'expert']}
           />
-        } 
+        }
       />
-      <Route 
-        path="/expert/client/:userId" 
+      <Route
+        path="/expert/client/:userId"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><ClientDetails /></DefaultLayout>} 
-            allowedRoles={['super_admin', 'expert']} 
+          <ProtectedRoute
+            element={<DefaultLayout><ClientDetails /></DefaultLayout>}
+            allowedRoles={['super_admin', 'expert']}
           />
-        } 
+        }
       />
-      <Route 
-        path="/expert/session/:userId/:sessionId" 
+      <Route
+        path="/expert/session/:userId/:sessionId"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><SessionDetails /></DefaultLayout>} 
-            allowedRoles={['super_admin', 'expert']} 
+          <ProtectedRoute
+            element={<DefaultLayout><SessionDetails /></DefaultLayout>}
+            allowedRoles={['super_admin', 'expert']}
           />
-        } 
+        }
+      />
+
+      {/* Soul Junction Users - Only super_admin */}
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute
+            element={<DefaultLayout><SoulJunctionUsers /></DefaultLayout>}
+            allowedRoles={['super_admin']}
+          />
+        }
       />
 
       {/* Admin Management - Only super_admin */}
-      <Route 
-        path="/admin-management" 
+      <Route
+        path="/admin-management"
         element={
-          <ProtectedRoute 
-            element={<DefaultLayout><AdminManagement /></DefaultLayout>} 
-            allowedRoles={['super_admin']} 
+          <ProtectedRoute
+            element={<DefaultLayout><AdminManagement /></DefaultLayout>}
+            allowedRoles={['super_admin']}
           />
-        } 
+        }
       />
 
       {/* Fallback - Redirect to login */}
