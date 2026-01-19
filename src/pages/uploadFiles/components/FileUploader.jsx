@@ -48,7 +48,7 @@ function FileUploader({ files = [], setFiles }) {
       />
 
       <p className="text-xs text-slate-500 mt-2">
-        Supported formats: CSV, SQL, Excel (.xls/.xlsx), XML files. Max 50MB each.
+        Supported formats: PDF and doc files. Max 50MB each.
       </p>
 
       {files.length > 0 && (

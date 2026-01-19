@@ -88,7 +88,7 @@ function Login() {
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Data Analysis Tool
+            Soul Junction Admin Panel
           </h1>
           <p className="text-slate-400 text-sm sm:text-base">Sign in to access your dashboard</p>
         </div>
@@ -177,7 +177,7 @@ function Login() {
 
         {/* Footer */}
         {/* <div className="mt-6 text-center text-xs text-slate-500">
-          <p>© 2026 Data Analysis Tool. All rights reserved.</p>
+          <p>© 2026 Soul Junction Admin Panel. All rights reserved.</p>
         </div> */}
       </div>
     </div>

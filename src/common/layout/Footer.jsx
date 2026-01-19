@@ -5,15 +5,15 @@ function Footer() {
       <div className="container flex flex-col md:flex-row justify-between items-center text-sm">
         <div className="text-center md:text-left mb-4 md:mb-0">
           <h2 className="font-semibold text-white">
-            Intelligent Data Analysis Tool
+             Soul Junction Admin Panel
           </h2>
-          <p className="text-gray-400">
+          {/* <p className="text-gray-400">
             Analyze multiple database formats with AI-powered insights
-          </p>
+          </p> */}
         </div>
-        <div className="text-center md:text-right text-gray-400">
+        {/* <div className="text-center md:text-right text-gray-400">
           Supports CSV, SQL, Excel, and XML formats
-        </div>
+        </div> */}
       </div>
     </footer>
   );

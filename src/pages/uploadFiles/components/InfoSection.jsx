@@ -5,7 +5,7 @@ function InfoSection() {
   return (
     <>
       {/* Supported File Formats */}
-      <div className="bg-sky-100/10 border border-sky-400 rounded-md p-4 text-sm text-slate-200">
+      {/* <div className="bg-sky-100/10 border border-sky-400 rounded-md p-4 text-sm text-slate-200">
         <h3 className="flex items-center gap-2 font-semibold text-sky-300 mb-2">
           <Info className="w-4 h-4" /> Supported File Formats
         </h3>
@@ -27,7 +27,7 @@ function InfoSection() {
             </li>
           </ul>
         </div>
-      </div>
+      </div> */}
 
       {/* What happens during analysis */}
       <div className="bg-slate-800 rounded-md">

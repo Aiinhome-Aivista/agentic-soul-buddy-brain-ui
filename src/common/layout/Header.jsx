@@ -35,7 +35,7 @@ function Header() {
         <h1 className="flex items-center gap-2 text-lg font-semibold">
           <Database className="w-6 h-6" />
           <Link to="/" className="flex items-center gap-2 hover:text-white">
-            Data Analysis Tool
+            Soul Junction Admin Panel
           </Link>
         </h1>
         <div className="flex items-center gap-6">

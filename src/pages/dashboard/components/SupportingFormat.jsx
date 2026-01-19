@@ -11,16 +11,16 @@ function SupportingFormat() {
       <div className="flex flex-wrap gap-3 px-3">
         
         {/* 1. CSV format (Re-added) */}
-        <div className="border border-slate-600 rounded-md p-3 flex flex-col items-center flex-1 w-[50%]">
+        {/* <div className="border border-slate-600 rounded-md p-3 flex flex-col items-center flex-1 w-[50%]">
           <FileSpreadsheet className="w-6 h-6 text-green-400 mb-1" />
           <span className="text-slate-200 text-sm">CSV</span>
-        </div>
+        </div> */}
         
         {/* 2. Excel format (Kept) */}
-        <div className="border border-slate-600 rounded-md p-3 flex flex-col items-center flex-1 w-[50%]">
+        {/* <div className="border border-slate-600 rounded-md p-3 flex flex-col items-center flex-1 w-[50%]">
           <Grid className="w-6 h-6 text-yellow-400 mb-1" />
           <span className="text-slate-200 text-sm">Excel</span>
-        </div>
+        </div> */}
         
         {/* 3. PDF format (Added) */}
         <div className="border border-slate-600 rounded-md p-3 flex flex-col items-center flex-1 w-[50%]">

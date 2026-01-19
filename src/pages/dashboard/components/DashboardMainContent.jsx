@@ -10,7 +10,7 @@ export default function DashboardMainContent() {
       <div className="flex flex-col gap-6">
         {/* Header Intro */}
         <div className="bg-[#795EFF] p-6 shadow-lg">
-          <h2 className="text-xl font-bold mb-2">Intelligent Data Analysis Tool</h2>
+          <h2 className="text-xl font-bold mb-2">Soul Junction Admin Panel</h2>
           <p className="text-[#f1f5f9] mb-4 text-sm">
             Upload multiple database files and get AI-powered insights about data types,
             patterns, relationships, and potential optimizations.
@@ -30,7 +30,7 @@ export default function DashboardMainContent() {
               <Database className="w-5 h-5 text-[#c084fc]" /> Multiple File Formats
             </h3>
             <p className="text-sm text-[#cbd5e1]">
-              Support for CSV, SQL, Excel (.xls/.xlsx), and XML files with intelligent parsing.
+              Support for PDF and Doc files with intelligent parsing.
             </p>
           </div>
 
