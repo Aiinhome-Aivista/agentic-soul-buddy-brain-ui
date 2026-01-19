@@ -283,7 +283,7 @@ function ClientDetails() {
                 {client.full_name?.charAt(0) || "?"}
               </div>
               <div className="flex flex-col gap-2 items-start">
-                <h2 className="text-xl font-bold">{client.full_name}</h2>
+                <h2 className="text-xl font-bold">{client.full_name?.split(' ')[0]}</h2>
 
                 <span
                   className={`${healthStyle.bg} ${healthStyle.text} text-sm px-3 py-1 rounded-full font-medium`}
@@ -295,10 +295,10 @@ function ClientDetails() {
 
             {/* Contact Info */}
             <div className="space-y-3 pt-4">
-              <div className="flex items-center gap-3 text-slate-300">
+              {/* <div className="flex items-center gap-3 text-slate-300">
                 <Mail className="w-4 h-4 text-slate-500" />
                 <span className="text-sm truncate">{client.email}</span>
-              </div>
+              </div> */}
               {client.phone && (
                 <div className="flex items-center gap-3 text-slate-300">
                   <Phone className="w-4 h-4 text-slate-500" />

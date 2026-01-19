@@ -212,8 +212,8 @@ function Expert() {
           <button
             onClick={() => setFilterStatus('all')}
             className={`px-4 py-2.5 rounded-lg font-medium transition-all ${filterStatus === 'all'
-                ? 'bg-[#795EFF] text-white'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              ? 'bg-[#795EFF] text-white'
+              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
           >
             All Clients
@@ -221,8 +221,8 @@ function Expert() {
           <button
             onClick={() => setFilterStatus('needs-attention')}
             className={`px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${filterStatus === 'needs-attention'
-                ? 'bg-red-500 text-white'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              ? 'bg-red-500 text-white'
+              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
           >
             <AlertCircle className="w-4 h-4" />
@@ -253,13 +253,13 @@ function Expert() {
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-sm font-semibold flex items-center gap-1 truncate">
-                        {user.full_name}
+                        {user.full_name?.split(' ')[0]}
                         <ChevronRight className="w-3 h-3 text-slate-500 group-hover:text-[#795EFF] group-hover:translate-x-1 transition-all flex-shrink-0" />
                       </h3>
-                      <p className="text-slate-400 text-xs flex items-center gap-1 truncate">
+                      {/* <p className="text-slate-400 text-xs flex items-center gap-1 truncate">
                         <Mail className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{user.email}</span>
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>
