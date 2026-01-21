@@ -11,6 +11,7 @@ import {
     Globe,
     FileText,
     Tag,
+    Link2,
 } from "lucide-react";
 import { apiService } from "../../service/ApiService";
 import { GET_url, POST_url } from "../../connection/connection";
@@ -30,6 +31,7 @@ function SeoManagement() {
         target_keyword: "",
         seo_title: "",
         meta_description: "",
+        page_url: "",
     });
 
     // Fetch all SEO data
@@ -74,6 +76,7 @@ function SeoManagement() {
             target_keyword: "",
             seo_title: "",
             meta_description: "",
+            page_url: "",
         });
         setShowModal(true);
         setSubmitError("");
@@ -86,6 +89,7 @@ function SeoManagement() {
             target_keyword: item.target_keyword || "",
             seo_title: item.seo_title || "",
             meta_description: item.meta_description || "",
+            page_url: item.page_url || "",
         });
         setShowModal(true);
         setSubmitError("");
@@ -245,6 +249,9 @@ function SeoManagement() {
                             <tr className="border-b border-slate-700 bg-slate-800/80">
                                 <th className="text-left p-4 text-slate-300 font-medium">ID</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">
+                                    Page URL
+                                </th>
+                                <th className="text-left p-4 text-slate-300 font-medium">
                                     Target Keyword
                                 </th>
                                 <th className="text-left p-4 text-slate-300 font-medium">
@@ -261,7 +268,7 @@ function SeoManagement() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={5} className="p-8 text-center">
+                                    <td colSpan={6} className="p-8 text-center">
                                         <div className="flex items-center justify-center gap-3">
                                             <RefreshCw className="w-5 h-5 animate-spin text-slate-400" />
                                             <span className="text-slate-400">Loading SEO data...</span>
@@ -270,7 +277,7 @@ function SeoManagement() {
                                 </tr>
                             ) : seoData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="p-8 text-center">
+                                    <td colSpan={6} className="p-8 text-center">
                                         <div className="flex flex-col items-center gap-2">
                                             <Globe className="w-12 h-12 text-slate-600" />
                                             <p className="text-slate-400">No SEO entries found</p>
@@ -296,8 +303,23 @@ function SeoManagement() {
                                             </span>
                                         </td>
                                         <td className="p-4">
+                                            {item.page_url ? (
+                                                <a
+
+                                                    className="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
+                                                >
+                                                    {/* <Link2 className="w-3 h-3" /> */}
+                                                    <span className="truncate max-w-[150px] text-white font-medium " title={item.page_url}>
+                                                        {item.page_url}
+                                                    </span>
+                                                </a>
+                                            ) : (
+                                                <span className="text-slate-500">-</span>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
                                             <div className="flex items-center gap-2">
-                                                <Tag className="w-4 h-4 text-blue-400" />
+                                                {/* <Tag className="w-4 h-4 text-blue-400" /> */}
                                                 <span className="text-white font-medium">
                                                     {item.target_keyword || "-"}
                                                 </span>
@@ -384,6 +406,24 @@ function SeoManagement() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Page URL */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-300 mb-2">
+                                    Page URL
+                                </label>
+                                <div className="relative">
+                                    <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        name="page_url"
+                                        value={formData.page_url}
+                                        onChange={handleInputChange}
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition"
+                                        placeholder="e.g., / , /pricing , /about"
+                                    />
+                                </div>
+                            </div>
+
                             {/* Target Keyword */}
                             <div>
                                 <label className="block text-sm font-medium text-slate-300 mb-2">
