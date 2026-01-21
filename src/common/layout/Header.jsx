@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Database, Home, Upload, Users, LogOut, Shield, UserCircle } from "lucide-react";
+import { Database, Home, Upload, Users, LogOut, Shield, UserCircle, Globe } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Context } from '../helper/Context';
 
@@ -18,6 +18,7 @@ function Header() {
   const canAccessExpert = user?.role === 'super_admin' || user?.role === 'expert';
   const canAccessAdminManagement = user?.role === 'super_admin';
   const canAccessUsers = user?.role === 'super_admin';
+  const canAccessSeo = user?.role === 'super_admin';
 
   // Get initials from full name
   const getInitials = (name) => {
@@ -64,6 +65,11 @@ function Header() {
             {canAccessAdminManagement && (
               <Link to="/admin-management" className="flex items-center gap-2 hover:text-white">
                 <Shield className="w-4 h-4" /> Admin
+              </Link>
+            )}
+            {canAccessSeo && (
+              <Link to="/seo" className="flex items-center gap-2 hover:text-white">
+                <Globe className="w-4 h-4" /> SEO
               </Link>
             )}
           </nav>

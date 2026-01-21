@@ -9,6 +9,7 @@ import ClientDetails from "../../pages/expert/ClientDetails"
 import SessionDetails from "../../pages/expert/SessionDetails"
 import AdminManagement from "../../pages/admin/AdminManagement"
 import SoulJunctionUsers from "../../pages/users/SoulJunctionUsers"
+import SeoManagement from "../../pages/seo/SeoManagement"
 import Login from "../../pages/auth/Login"
 import ProtectedRoute from "./ProtectedRoute"
 
@@ -99,6 +100,17 @@ function Index() {
         element={
           <ProtectedRoute
             element={<DefaultLayout><AdminManagement /></DefaultLayout>}
+            allowedRoles={['super_admin']}
+          />
+        }
+      />
+
+      {/* SEO Management - Only super_admin */}
+      <Route
+        path="/seo"
+        element={
+          <ProtectedRoute
+            element={<DefaultLayout><SeoManagement /></DefaultLayout>}
             allowedRoles={['super_admin']}
           />
         }
