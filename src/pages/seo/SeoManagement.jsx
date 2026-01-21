@@ -26,6 +26,7 @@ function SeoManagement() {
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [submitError, setSubmitError] = useState("");
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const [formData, setFormData] = useState({
         target_keyword: "",
@@ -186,6 +187,26 @@ function SeoManagement() {
                 </div>
             </div>
 
+            {/* Search Bar */}
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by keyword, title, URL, or description..."
+                    className="w-full pl-12 pr-10 py-3 bg-slate-800/50 border border-slate-700 rounded-xl focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition text-white placeholder-slate-500"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
+
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
@@ -292,89 +313,102 @@ function SeoManagement() {
                                     </td>
                                 </tr>
                             ) : (
-                                [...seoData].sort((a, b) => (a.id || 0) - (b.id || 0)).map((item, index) => (
-                                    <tr
-                                        key={item.id || index}
-                                        className="border-b border-slate-700/50 hover:bg-slate-700/30 transition"
-                                    >
-                                        <td className="p-4">
-                                            <span className="px-2 py-1 bg-slate-700 rounded text-sm">
-                                                {item.id || index + 1}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            {item.page_url ? (
-                                                <a
-
-                                                    className="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
-                                                >
-                                                    {/* <Link2 className="w-3 h-3" /> */}
-                                                    <span className="truncate max-w-[150px] text-white font-medium " title={item.page_url}>
-                                                        {item.page_url}
-                                                    </span>
-                                                </a>
-                                            ) : (
-                                                <span className="text-slate-500">-</span>
-                                            )}
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                {/* <Tag className="w-4 h-4 text-blue-400" /> */}
-                                                <span className="text-white font-medium">
-                                                    {item.target_keyword || "-"}
+                                [...seoData]
+                                    .filter((item) => {
+                                        if (!searchQuery.trim()) return true;
+                                        const query = searchQuery.toLowerCase();
+                                        return (
+                                            (item.target_keyword?.toLowerCase() || "").includes(query) ||
+                                            (item.seo_title?.toLowerCase() || "").includes(query) ||
+                                            (item.meta_description?.toLowerCase() || "").includes(query) ||
+                                            (item.page_url?.toLowerCase() || "").includes(query) ||
+                                            String(item.id).includes(query)
+                                        );
+                                    })
+                                    .sort((a, b) => (a.id || 0) - (b.id || 0))
+                                    .map((item, index) => (
+                                        <tr
+                                            key={item.id || index}
+                                            className="border-b border-slate-700/50 hover:bg-slate-700/30 transition"
+                                        >
+                                            <td className="p-4">
+                                                <span className="px-2 py-1 bg-slate-700 rounded text-sm">
+                                                    {item.id || index + 1}
                                                 </span>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="text-slate-300">
-                                                {item.seo_title || "-"}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <span
-                                                className="text-slate-400 text-sm line-clamp-2"
-                                                title={item.meta_description}
-                                            >
-                                                {item.meta_description || "-"}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => openEditModal(item)}
-                                                    className="p-2 hover:bg-blue-500/20 rounded-lg transition text-blue-400 hover:text-blue-300"
-                                                    title="Edit"
-                                                >
-                                                    <Edit2 className="w-4 h-4" />
-                                                </button>
-                                                {deleteConfirm === item.id ? (
-                                                    <div className="flex items-center gap-1">
-                                                        <button
-                                                            onClick={() => handleDelete(item.id)}
-                                                            className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded text-xs text-white"
-                                                        >
-                                                            Confirm
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setDeleteConfirm(null)}
-                                                            className="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-xs"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => setDeleteConfirm(item.id)}
-                                                        className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400 hover:text-red-300"
-                                                        title="Delete"
+                                            </td>
+                                            <td className="p-4">
+                                                {item.page_url ? (
+                                                    <a
+
+                                                        className="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-sm"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                        {/* <Link2 className="w-3 h-3" /> */}
+                                                        <span className="truncate max-w-[150px] text-white font-medium " title={item.page_url}>
+                                                            {item.page_url}
+                                                        </span>
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-slate-500">-</span>
                                                 )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-2">
+                                                    {/* <Tag className="w-4 h-4 text-blue-400" /> */}
+                                                    <span className="text-white font-medium">
+                                                        {item.target_keyword || "-"}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className="text-slate-300">
+                                                    {item.seo_title || "-"}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <span
+                                                    className="text-slate-400 text-sm line-clamp-2"
+                                                    title={item.meta_description}
+                                                >
+                                                    {item.meta_description || "-"}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => openEditModal(item)}
+                                                        className="p-2 hover:bg-blue-500/20 rounded-lg transition text-blue-400 hover:text-blue-300"
+                                                        title="Edit"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                    {deleteConfirm === item.id ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                onClick={() => handleDelete(item.id)}
+                                                                className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded text-xs text-white"
+                                                            >
+                                                                Confirm
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setDeleteConfirm(null)}
+                                                                className="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-xs"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setDeleteConfirm(item.id)}
+                                                            className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400 hover:text-red-300"
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
                             )}
                         </tbody>
                     </table>
