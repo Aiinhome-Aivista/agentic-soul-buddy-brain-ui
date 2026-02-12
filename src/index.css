@@ -122,6 +122,7 @@ html, body {
   color: #f1f5f9;
 }
 
+
 /* PrimeReact MultiSelect Customization */
 .p-multiselect {
   background: #1e293b;
@@ -201,3 +202,70 @@ html, body {
 .p-multiselect-close:hover {
   color: #e2e8f0;
 }
+
+/* PrimeReact Dropdown Customization (Global Match) */
+.p-dropdown {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.p-dropdown:not(.p-disabled):hover {
+  border-color: #795eff;
+}
+
+.p-dropdown .p-dropdown-label {
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+  background: transparent;
+}
+
+.p-dropdown .p-dropdown-label.p-placeholder {
+  color: #94a3b8;
+}
+
+.p-dropdown .p-dropdown-trigger {
+  color: #94a3b8;
+  width: 2.5rem;
+  background: transparent;
+}
+
+/* Ensure panel matches too */
+.p-dropdown-panel {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+  border: 0 none;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+  background: #334155;
+  color: #ffffff;
+}
+
+.p-dropdown-panel .p-dropdown-header {
+  background: #1e293b;
+  border-bottom: 1px solid #475569;
+  color: #e2e8f0;
+  padding: 0.5rem;
+}
+
+.p-dropdown-panel .p-dropdown-filter {
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #475569; 
+}
+

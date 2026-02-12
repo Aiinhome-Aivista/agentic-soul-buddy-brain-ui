@@ -19,6 +19,9 @@ export const POST_url = {
   expertInsight: `${API_BASE_URL}/expert-insight`, // Expert Insight
   adminRegistration: `${API_BASE_URL}/admin_expert_registration`, // Admin Management - Register
   seo_crud: `${API_BASE_URL}/seo`,
+  category: `${API_BASE_URL}/categories`,
+  blogs: `${API_BASE_URL}/blogs`
+
 };
 
 export const GET_url = {

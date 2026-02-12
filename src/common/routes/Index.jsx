@@ -10,6 +10,8 @@ import SessionDetails from "../../pages/expert/SessionDetails"
 import AdminManagement from "../../pages/admin/AdminManagement"
 import SoulJunctionUsers from "../../pages/users/SoulJunctionUsers"
 import SeoManagement from "../../pages/seo/SeoManagement"
+import BlogManagement from "../../pages/blog/BlogManagement"
+import CategoryManagement from "../../pages/category/CategoryManagement"
 import Login from "../../pages/auth/Login"
 import ProtectedRoute from "./ProtectedRoute"
 
@@ -112,6 +114,28 @@ function Index() {
           <ProtectedRoute
             element={<DefaultLayout><SeoManagement /></DefaultLayout>}
             allowedRoles={['super_admin']}
+          />
+        }
+      />
+
+      {/* Blog Management - Only super_admin */}
+      <Route
+        path="/blog"
+        element={
+          <ProtectedRoute
+            element={<DefaultLayout><BlogManagement /></DefaultLayout>}
+            allowedRoles={['super_admin', 'admin']}
+          />
+        }
+      />
+
+      {/* Category Management - Only super_admin */}
+      <Route
+        path="/category"
+        element={
+          <ProtectedRoute
+            element={<DefaultLayout><CategoryManagement /></DefaultLayout>}
+            allowedRoles={['super_admin', 'admin']}
           />
         }
       />
