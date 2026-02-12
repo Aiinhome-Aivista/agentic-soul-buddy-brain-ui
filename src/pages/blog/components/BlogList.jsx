@@ -12,7 +12,9 @@ import {
     X,
     Eye,
     EyeOff,
-    Pin
+    Pin,
+    Tag,
+    Clock
 } from "lucide-react";
 import { BLOG_STATUS } from "../../../common/constants";
 
@@ -36,6 +38,19 @@ const BlogList = ({
         let tmp = document.createElement("DIV");
         tmp.innerHTML = html;
         return tmp.textContent || tmp.innerText || "";
+    };
+
+    // Helper to parse tags
+    const parseTags = (tags) => {
+        if (!tags) return [];
+        if (Array.isArray(tags)) return tags;
+        try {
+            const parsed = JSON.parse(tags);
+            if (Array.isArray(parsed)) return parsed;
+            return tags.split(',').map(t => t.trim());
+        } catch (e) {
+            return tags.split(',').map(t => t.trim());
+        }
     };
 
     return (
@@ -153,6 +168,7 @@ const BlogList = ({
                                 <th className="text-left p-4 text-slate-300 font-medium max-w-sm">Content Preview</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Featured Image</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Category</th>
+                                <th className="text-left p-4 text-slate-300 font-medium">Tags</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Status</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Created Date</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Action</th>
@@ -161,7 +177,7 @@ const BlogList = ({
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={8} className="p-8 text-center">
+                                    <td colSpan={9} className="p-8 text-center">
                                         <div className="flex items-center justify-center gap-3">
                                             <RefreshCw className="w-5 h-5 animate-spin text-slate-400" />
                                             <span className="text-slate-400">Loading Blog posts...</span>
@@ -170,7 +186,7 @@ const BlogList = ({
                                 </tr>
                             ) : blogData.length === 0 ? (
                                 <tr>
-                                    <td colSpan={8} className="p-8 text-center">
+                                    <td colSpan={9} className="p-8 text-center">
                                         <div className="flex flex-col items-center gap-2">
                                             <BookOpen className="w-12 h-12 text-slate-600" />
                                             <p className="text-slate-400">No blog posts found</p>
@@ -193,7 +209,8 @@ const BlogList = ({
                                             const matchesSearch = (
                                                 (item.title?.toLowerCase() || "").includes(query) ||
                                                 (item.content?.toLowerCase() || "").includes(query) ||
-                                                (item.category?.toLowerCase() || "").includes(query)
+                                                (item.category?.toLowerCase() || "").includes(query) ||
+                                                (item.tags?.toString()?.toLowerCase() || "").includes(query)
                                             );
                                             if (!matchesSearch) return false;
                                         }
@@ -264,6 +281,20 @@ const BlogList = ({
                                                 </span>
                                             </td>
                                             <td className="p-4">
+                                                <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                                    {parseTags(item.tags).slice(0, 3).map((tag, idx) => (
+                                                        <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                    {parseTags(item.tags).length > 3 && (
+                                                        <span className="text-[10px] text-slate-500">
+                                                            +{parseTags(item.tags).length - 3} more
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.status === BLOG_STATUS.PUBLISHED || item.is_post === 1
                                                     ? 'bg-green-500/10 text-green-400 border-green-500/20'
                                                     : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
@@ -272,14 +303,26 @@ const BlogList = ({
                                                 </span>
                                             </td>
                                             <td className="p-4">
-                                                <div className="flex items-center gap-1 text-slate-400 text-sm">
-                                                    <span>
-                                                        {new Date(item.created_at || item.date).toLocaleDateString('en-GB', {
-                                                            day: '2-digit',
-                                                            month: '2-digit',
-                                                            year: 'numeric'
-                                                        })}
-                                                    </span>
+                                                <div className="flex flex-col gap-1 text-slate-400 text-sm">
+                                                    <div className="flex items-center gap-1">
+                                                        
+                                                        <span>
+                                                            {new Date(item.created_at || item.date).toLocaleDateString('en-GB', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric'
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 text-xs text-slate-500">
+                                                       
+                                                        <span>
+                                                            {new Date(item.created_at || item.date).toLocaleTimeString([], {
+                                                                hour: '2-digit',
+                                                                minute: '2-digit'
+                                                            })}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="p-4">

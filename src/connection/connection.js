@@ -37,6 +37,8 @@ export const GET_url = {
   captcha: `${API_BASE_URL}/generate_captcha`,
   souljunction_users: `${API_BASE_URL}/souljunction_users`,
   seo_details: `${API_BASE_URL}/seo`,
+  category: `${API_BASE_URL}/categories`,
+  tags: `${API_BASE_URL}/blogs/tags`
 };
 
 // DELETE endpoints

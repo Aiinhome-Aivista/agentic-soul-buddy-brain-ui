@@ -8,10 +8,11 @@ import {
     CheckCircle,
     AlertCircle,
     Save,
-    X
+    X,
+    Plus
 } from "lucide-react";
 import { apiService } from "../../../service/ApiService";
-import { POST_url } from "../../../connection/connection";
+import { POST_url, GET_url } from "../../../connection/connection";
 import { BLOG_STATUS } from "../../../common/constants";
 
 const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, submitError, user }) => {
@@ -20,14 +21,21 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         title: "",
         content_preview: "",
         category_id: "",
-        featured_image: "", 
+        featured_image: "",
         status: BLOG_STATUS.PUBLISHED,
         is_pinned: false,
-        author_name: user?.full_name || ""
+        author_name: user?.full_name || "",
+        tags: "" // Will be stored as JSON string or comma separated, processing in submit
     });
 
     const [imageFile, setImageFile] = useState();
     const [categories, setCategories] = useState([]);
+
+    // Tags State
+    const [availableTags, setAvailableTags] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [tagInput, setTagInput] = useState("");
+    const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -48,8 +56,58 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         fetchCategories();
     }, []);
 
+    // Fetch Tags
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const response = await apiService({
+                    url: GET_url.tags,
+                    method: "GET"
+                });
+
+                let tagsData = [];
+                if (Array.isArray(response)) {
+                    tagsData = response;
+                } else if (response?.data && Array.isArray(response.data)) {
+                    tagsData = response.data;
+                } else if (response?.tags && Array.isArray(response.tags)) {
+                    tagsData = response.tags;
+                } else if (response?.data?.tags && Array.isArray(response.data.tags)) {
+                    tagsData = response.data.tags;
+                }
+
+                setAvailableTags(tagsData);
+            } catch (error) {
+                console.error("Failed to fetch tags", error);
+            }
+        };
+        fetchTags();
+    }, []);
+
+
     useEffect(() => {
         if (editingItem) {
+
+            // Parse tags from editingItem
+            let initialTags = [];
+            if (editingItem.tags) {
+                if (Array.isArray(editingItem.tags)) {
+                    initialTags = editingItem.tags;
+                } else if (typeof editingItem.tags === 'string') {
+                    try {
+                        // Try parsing as JSON array
+                        const parsed = JSON.parse(editingItem.tags);
+                        if (Array.isArray(parsed)) initialTags = parsed;
+                        else initialTags = editingItem.tags.split(',').map(t => t.trim());
+                    } catch (e) {
+                        // Fallback to comma separation
+                        initialTags = editingItem.tags.split(',').map(t => t.trim());
+                    }
+                }
+            }
+
+            setSelectedTags(initialTags);
+
             setFormData({
                 title: editingItem.title || "",
                 content_preview: editingItem.content_preview || editingItem.content || "",
@@ -57,11 +115,12 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                 featured_image: editingItem.image || editingItem.featured_image || "", // Adjust based on what API returns
                 status: editingItem.is_post === 1 ? BLOG_STATUS.PUBLISHED : (editingItem.status || BLOG_STATUS.PUBLISHED),
                 is_pinned: editingItem.is_pinned || false,
-                author_name: editingItem.author_name || user?.full_name || ""
+                author_name: editingItem.author_name || user?.full_name || "",
+                tags: ""
             });
 
         }
-    }, [editingItem]);
+    }, [editingItem, user]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -69,6 +128,31 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
             ...formData,
             [name]: value,
         });
+    };
+
+    // Tag Handlers
+    const handleTagInputChange = (e) => {
+        setTagInput(e.target.value);
+        setIsTagDropdownOpen(true);
+    };
+
+    const handleTagInputKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTag(tagInput);
+        }
+    };
+
+    const addTag = (tag) => {
+        const trimmedTag = tag.trim();
+        if (trimmedTag && !selectedTags.includes(trimmedTag)) {
+            setSelectedTags([...selectedTags, trimmedTag]);
+            setTagInput("");
+        }
+    };
+
+    const removeTag = (tagToRemove) => {
+        setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
     };
 
     const handleFormSubmit = (e) => {
@@ -81,6 +165,10 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         data.append("category_id", formData.category_id);
         data.append("is_pinned", formData.is_pinned ? 1 : 0);
         data.append("is_post", formData.status === BLOG_STATUS.PUBLISHED ? 1 : 0);
+
+        // Append Tags - sending as JSON string to handle array
+        // Adjust this if backend expects multiple 'tags' keys or different format
+        data.append("tags", JSON.stringify(selectedTags));
 
         if (imageFile) {
             data.append("image", imageFile);
@@ -177,6 +265,115 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                     <span className="text-slate-300 transition-colors">Draft</span>
                                 </label>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Tags Field */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Tags
+                        </label>
+                        <div className="relative group">
+                            <Tag className="absolute left-3 top-3 w-4 h-4 text-slate-400 z-10" />
+                            <div
+                                className={`w-full pl-10 pr-4 py-2 min-h-[50px] bg-slate-700/50 border rounded-lg transition flex flex-wrap gap-2 items-center cursor-text ${isTagDropdownOpen ? 'border-yellow-500 ring-1 ring-yellow-500' : 'border-slate-600 focus-within:border-yellow-500 focus-within:ring-1 focus-within:ring-yellow-500'}`}
+                                onClick={() => {
+                                    document.getElementById('tag-input').focus();
+                                    setIsTagDropdownOpen(true);
+                                }}
+                            >
+                                {selectedTags.map((tag, index) => (
+                                    <span key={index} className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 text-sm border border-yellow-500/20">
+                                        {tag}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeTag(tag);
+                                            }}
+                                            className="hover:text-yellow-300 focus:outline-none"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    </span>
+                                ))}
+                                <input
+                                    id="tag-input"
+                                    type="text"
+                                    value={tagInput}
+                                    onChange={handleTagInputChange}
+                                    onKeyDown={handleTagInputKeyDown}
+                                    onFocus={() => setIsTagDropdownOpen(true)}
+                                    className="bg-transparent border-none outline-none text-white placeholder-slate-500 flex-1 min-w-[120px] py-1"
+                                    placeholder={selectedTags.length === 0 ? "Select or type to add tags..." : ""}
+                                    autoComplete="off"
+                                />
+                            </div>
+
+                            {/* Custom Dropdown for Tags */}
+                            {isTagDropdownOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-[9998]" onClick={() => setIsTagDropdownOpen(false)}></div>
+                                    <div className="absolute z-[9999] w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
+                                        {availableTags.filter(tag => {
+                                            const tagName = typeof tag === 'string' ? tag : (tag.name || tag.label || tag.title || tag.tag || tag.value || "");
+                                            return tagName.toLowerCase().includes(tagInput.toLowerCase());
+                                        }).length > 0 ? (
+                                            availableTags
+                                                .filter(tag => {
+                                                    const tagName = typeof tag === 'string' ? tag : (tag.name || tag.label || tag.title || tag.tag || tag.value || "");
+                                                    return tagName.toLowerCase().includes(tagInput.toLowerCase());
+                                                })
+                                                .map((tag, index) => {
+                                                    const tagName = typeof tag === 'string' ? tag : (tag.name || tag.label || tag.title || tag.tag || tag.value || "");
+                                                    const isSelected = selectedTags.includes(tagName);
+                                                    return (
+                                                        <button
+                                                            key={index}
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                if (isSelected) {
+                                                                    removeTag(tagName);
+                                                                } else {
+                                                                    addTag(tagName);
+                                                                }
+                                                                document.getElementById('tag-input').focus();
+                                                            }}
+                                                            className={`w-full text-left px-4 py-2.5 hover:bg-slate-700 transition flex items-center gap-3 group ${isSelected ? 'bg-slate-700/50' : 'text-slate-300'}`}
+                                                        >
+                                                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-yellow-500 border-yellow-500' : 'border-slate-500 group-hover:border-slate-400'}`}>
+                                                                {isSelected && <CheckCircle className="w-3 h-3 text-white" />}
+                                                            </div>
+                                                            <span className={isSelected ? 'text-yellow-500' : 'text-slate-300 group-hover:text-white'}>{tagName}</span>
+                                                        </button>
+                                                    );
+                                                })
+                                        ) : (
+                                            tagInput && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        addTag(tagInput);
+                                                        setTagInput("");
+                                                        setIsTagDropdownOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 hover:bg-slate-700 text-slate-300 transition flex items-center gap-2"
+                                                >
+                                                    <Plus className="w-4 h-4" />
+                                                    <span>Add "{tagInput}"</span>
+                                                </button>
+                                            )
+                                        )}
+                                        {availableTags.length === 0 && !tagInput && (
+                                            <div className="px-4 py-3 text-slate-500 text-sm italic">
+                                                No tags available. Type to create one.
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
