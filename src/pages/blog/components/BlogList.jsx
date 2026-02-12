@@ -29,6 +29,7 @@ const BlogList = ({
     fetchBlogData,
     handleTogglePin
 }) => {
+    const [filterStatus, setFilterStatus] = React.useState('ALL'); // 'ALL', 'PUBLISHED', 'DRAFT'
 
     // Helper to strip HTML tags for preview (if content is HTML)
     const stripHtml = (html) => {
@@ -93,7 +94,10 @@ const BlogList = ({
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                <div
+                    onClick={() => setFilterStatus('ALL')}
+                    className={`bg-slate-800/50 border rounded-xl p-4 cursor-pointer transition-all ${filterStatus === 'ALL' ? 'border-yellow-500 ring-1 ring-yellow-500/50' : 'border-slate-700 hover:border-slate-600'}`}
+                >
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-yellow-500/20 rounded-lg">
                             <BookOpen className="w-5 h-5 text-yellow-400" />
@@ -104,7 +108,10 @@ const BlogList = ({
                         </div>
                     </div>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                <div
+                    onClick={() => setFilterStatus('PUBLISHED')}
+                    className={`bg-slate-800/50 border rounded-xl p-4 cursor-pointer transition-all ${filterStatus === 'PUBLISHED' ? 'border-green-500 ring-1 ring-green-500/50' : 'border-slate-700 hover:border-slate-600'}`}
+                >
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-green-500/20 rounded-lg">
                             <Eye className="w-5 h-5 text-green-400" />
@@ -117,7 +124,10 @@ const BlogList = ({
                         </div>
                     </div>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                <div
+                    onClick={() => setFilterStatus('DRAFT')}
+                    className={`bg-slate-800/50 border rounded-xl p-4 cursor-pointer transition-all ${filterStatus === 'DRAFT' ? 'border-slate-500 ring-1 ring-slate-500/50' : 'border-slate-700 hover:border-slate-600'}`}
+                >
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-slate-500/20 rounded-lg">
                             <EyeOff className="w-5 h-5 text-slate-400" />
@@ -177,13 +187,26 @@ const BlogList = ({
                             ) : (
                                 [...blogData]
                                     .filter((item) => {
-                                        if (!searchQuery.trim()) return true;
-                                        const query = searchQuery.toLowerCase();
-                                        return (
-                                            (item.title?.toLowerCase() || "").includes(query) ||
-                                            (item.content?.toLowerCase() || "").includes(query) ||
-                                            (item.category?.toLowerCase() || "").includes(query)
-                                        );
+                                        // 1. Filter by Search Query
+                                        if (searchQuery.trim()) {
+                                            const query = searchQuery.toLowerCase();
+                                            const matchesSearch = (
+                                                (item.title?.toLowerCase() || "").includes(query) ||
+                                                (item.content?.toLowerCase() || "").includes(query) ||
+                                                (item.category?.toLowerCase() || "").includes(query)
+                                            );
+                                            if (!matchesSearch) return false;
+                                        }
+
+                                        // 2. Filter by Status (Published/Draft/All)
+                                        if (filterStatus === 'PUBLISHED') {
+                                            return item.is_post === 1 || item.is_post === "1" || item.status === BLOG_STATUS.PUBLISHED;
+                                        }
+                                        if (filterStatus === 'DRAFT') {
+                                            return item.is_post === 0 || item.is_post === "0" || item.status === BLOG_STATUS.DRAFT;
+                                        }
+
+                                        return true; // 'ALL'
                                     })
                                     // Sort by Pinned first, then by Date
                                     .sort((a, b) => {
