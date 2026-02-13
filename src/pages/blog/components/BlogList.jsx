@@ -14,7 +14,11 @@ import {
     EyeOff,
     Pin,
     Tag,
-    Clock
+    Clock,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight
 } from "lucide-react";
 
 const BlogList = ({
@@ -34,6 +38,10 @@ const BlogList = ({
     const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
     const [blogToDelete, setBlogToDelete] = React.useState(null);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [itemsPerPage, setItemsPerPage] = React.useState(10);
+
     // Helper to strip HTML tags for preview (if content is HTML)
     const stripHtml = (html) => {
         let tmp = document.createElement("DIV");
@@ -52,6 +60,64 @@ const BlogList = ({
         } catch (e) {
             return tags.split(',').map(t => t.trim());
         }
+    };
+
+    // Filter and sort data
+    const filteredAndSortedData = React.useMemo(() => {
+        return [...blogData]
+            .filter((item) => {
+                // 1. Filter by Search Query
+                if (searchQuery.trim()) {
+                    const query = searchQuery.toLowerCase();
+                    const matchesSearch = (
+                        (item.title?.toLowerCase() || "").includes(query) ||
+                        (item.content?.toLowerCase() || "").includes(query) ||
+                        (item.category?.toLowerCase() || "").includes(query) ||
+                        (item.tags?.toString()?.toLowerCase() || "").includes(query)
+                    );
+                    if (!matchesSearch) return false;
+                }
+
+                // 2. Filter by Status (Published/Draft/All)
+                if (filterStatus === 'PUBLISHED') {
+                    return item.is_post === 1 || item.is_post === "1";
+                }
+                if (filterStatus === 'DRAFT') {
+                    return item.is_post === 0 || item.is_post === "0";
+                }
+
+                return true; // 'ALL'
+            })
+            // Sort by Pinned first, then by Date
+            .sort((a, b) => {
+                if (a.is_pinned && !b.is_pinned) return -1;
+                if (!a.is_pinned && b.is_pinned) return 1;
+                return new Date(b.created_at || b.date) - new Date(a.created_at || a.date);
+            });
+    }, [blogData, searchQuery, filterStatus]);
+
+    // Reset to page 1 when filters change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, filterStatus]);
+
+    // Calculate pagination
+    const totalItems = filteredAndSortedData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filteredAndSortedData.slice(startIndex, endIndex);
+
+    // Pagination handlers
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    const handleItemsPerPageChange = (newItemsPerPage) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1); // Reset to first page when changing items per page
     };
 
     return (
@@ -185,7 +251,7 @@ const BlogList = ({
                                         </div>
                                     </td>
                                 </tr>
-                            ) : blogData.length === 0 ? (
+                            ) : filteredAndSortedData.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="p-8 text-center">
                                         <div className="flex flex-col items-center gap-2">
@@ -202,167 +268,246 @@ const BlogList = ({
                                     </td>
                                 </tr>
                             ) : (
-                                [...blogData]
-                                    .filter((item) => {
-                                        // 1. Filter by Search Query
-                                        if (searchQuery.trim()) {
-                                            const query = searchQuery.toLowerCase();
-                                            const matchesSearch = (
-                                                (item.title?.toLowerCase() || "").includes(query) ||
-                                                (item.content?.toLowerCase() || "").includes(query) ||
-                                                (item.category?.toLowerCase() || "").includes(query) ||
-                                                (item.tags?.toString()?.toLowerCase() || "").includes(query)
-                                            );
-                                            if (!matchesSearch) return false;
-                                        }
-
-                                        // 2. Filter by Status (Published/Draft/All)
-                                        if (filterStatus === 'PUBLISHED') {
-                                            return item.is_post === 1 || item.is_post === "1";
-                                        }
-                                        if (filterStatus === 'DRAFT') {
-                                            return item.is_post === 0 || item.is_post === "0";
-                                        }
-
-                                        return true; // 'ALL'
-                                    })
-                                    // Sort by Pinned first, then by Date
-                                    .sort((a, b) => {
-                                        if (a.is_pinned && !b.is_pinned) return -1;
-                                        if (!a.is_pinned && b.is_pinned) return 1;
-                                        return new Date(b.created_at || b.date) - new Date(a.created_at || a.date);
-                                    })
-                                    .map((item, index) => (
-                                        <tr
-                                            key={item.id || index}
-                                            className={`border-b border-slate-700/50 hover:bg-slate-700/30 transition ${item.is_pinned ? 'bg-slate-800/80' : ''}`}
-                                        >
-                                            <td className="p-4">
-                                                <span className="px-2 py-1 bg-slate-700 rounded text-sm">
-                                                    {item.id || index + 1}
+                                paginatedData.map((item, index) => (
+                                    <tr
+                                        key={item.id || index}
+                                        className={`border-b border-slate-700/50 hover:bg-slate-700/30 transition ${item.is_pinned ? 'bg-slate-800/80' : ''}`}
+                                    >
+                                        <td className="p-4">
+                                            <span className="px-2 py-1 bg-slate-700 rounded text-sm">
+                                                {item.id || startIndex + index + 1}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-white font-medium truncate max-w-[200px] block" title={item.title}>
+                                                {item.title}
+                                            </span>
+                                            {(item.is_pinned === 1 || item.is_pinned === true) && (
+                                                <span className="text-[10px] text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-1.5 py-0.5 rounded mt-1 inline-block">
+                                                    Pinned
                                                 </span>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="text-white font-medium truncate max-w-[200px] block" title={item.title}>
-                                                    {item.title}
-                                                </span>
-                                                {(item.is_pinned === 1 || item.is_pinned === true) && (
-                                                    <span className="text-[10px] text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-1.5 py-0.5 rounded mt-1 inline-block">
-                                                        Pinned
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-xs text-slate-400 block max-w-[300px] truncate" title={stripHtml(item.content_preview || item.content || "")}>
+                                                {stripHtml(item.content_preview || item.content || "").substring(0, 80)}...
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            {item.image_url || item.featured_image || item.image ? (
+                                                <img
+                                                    src={(item.image_url || item.featured_image || item.image)?.startsWith('http')
+                                                        ? (item.image_url || item.featured_image || item.image)
+                                                        : `${baseUrl}${(item.image_url || item.featured_image || item.image).replace(/^\/+/, '')}`}
+                                                    alt="Thumbnail"
+                                                    className="w-12 h-12 rounded object-cover border border-slate-600"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = "https://via.placeholder.com/150?text=No+Image";
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded bg-slate-700 flex items-center justify-center text-slate-500">
+                                                    <ImageIcon className="w-6 h-6" />
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                {item.category_name || item.category || "General"}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                                {parseTags(item.tags).slice(0, 3).map((tag, idx) => (
+                                                    <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                                {parseTags(item.tags).length > 3 && (
+                                                    <span className="text-[10px] text-slate-500">
+                                                        +{parseTags(item.tags).length - 3} more
                                                     </span>
                                                 )}
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="text-xs text-slate-400 block max-w-[300px] truncate" title={stripHtml(item.content_preview || item.content || "")}>
-                                                    {stripHtml(item.content_preview || item.content || "").substring(0, 80)}...
-                                                </span>
-                                            </td>
-                                            <td className="p-4">
-                                                {item.image_url || item.featured_image || item.image ? (
-                                                    <img
-                                                        src={(item.image_url || item.featured_image || item.image)?.startsWith('http')
-                                                            ? (item.image_url || item.featured_image || item.image)
-                                                            : `${baseUrl}${(item.image_url || item.featured_image || item.image).replace(/^\/+/, '')}`}
-                                                        alt="Thumbnail"
-                                                        className="w-12 h-12 rounded object-cover border border-slate-600"
-                                                        onError={(e) => {
-                                                            e.target.onerror = null;
-                                                            e.target.src = "https://via.placeholder.com/150?text=No+Image";
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <div className="w-12 h-12 rounded bg-slate-700 flex items-center justify-center text-slate-500">
-                                                        <ImageIcon className="w-6 h-6" />
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                    {item.category_name || item.category || "General"}
-                                                </span>
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                                    {parseTags(item.tags).slice(0, 3).map((tag, idx) => (
-                                                        <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
-                                                            {tag}
-                                                        </span>
-                                                    ))}
-                                                    {parseTags(item.tags).length > 3 && (
-                                                        <span className="text-[10px] text-slate-500">
-                                                            +{parseTags(item.tags).length - 3} more
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.is_post === 1 || item.is_post === "1"
-                                                    ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                                                    : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
-                                                    }`}>
-                                                    {item.is_post === 1 || item.is_post === "1" ? 'Published' : 'Draft'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="flex flex-col gap-1 text-slate-400 text-sm">
-                                                    <div className="flex items-center gap-1">
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.is_post === 1 || item.is_post === "1"
+                                                ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                                : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                                }`}>
+                                                {item.is_post === 1 || item.is_post === "1" ? 'Published' : 'Draft'}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col gap-1 text-slate-400 text-sm">
+                                                <div className="flex items-center gap-1">
 
-                                                        <span>
-                                                            {new Date(item.created_at || item.date).toLocaleDateString('en-GB', {
-                                                                day: '2-digit',
-                                                                month: '2-digit',
-                                                                year: 'numeric'
-                                                            })}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 text-xs text-slate-500">
+                                                    <span>
+                                                        {new Date(item.created_at || item.date).toLocaleDateString('en-GB', {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric'
+                                                        })}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-xs text-slate-500">
 
-                                                        <span>
-                                                            {new Date(item.created_at || item.date).toLocaleTimeString([], {
-                                                                hour: '2-digit',
-                                                                minute: '2-digit'
-                                                            })}
-                                                        </span>
-                                                    </div>
+                                                    <span>
+                                                        {new Date(item.created_at || item.date).toLocaleTimeString([], {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}
+                                                    </span>
                                                 </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        onClick={() => handleTogglePin(item.id)}
-                                                        className={`p-2 rounded-lg transition ${item.is_pinned
-                                                            ? 'text-yellow-400 bg-yellow-500/20 hover:bg-yellow-500/30'
-                                                            : 'text-slate-400 hover:bg-slate-600 hover:text-slate-200'
-                                                            }`}
-                                                        title={item.is_pinned ? "Unpin Post" : "Pin Post"}
-                                                    >
-                                                        <Pin className={`w-4 h-4 ${item.is_pinned ? 'fill-current' : ''}`} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openEditPage(item)}
-                                                        className="p-2 hover:bg-blue-500/20 rounded-lg transition text-blue-400 hover:text-blue-300"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit2 className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            setBlogToDelete(item);
-                                                            setDeleteModalOpen(true);
-                                                        }}
-                                                        className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400 hover:text-red-300"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleTogglePin(item.id)}
+                                                    className={`p-2 rounded-lg transition ${item.is_pinned
+                                                        ? 'text-yellow-400 bg-yellow-500/20 hover:bg-yellow-500/30'
+                                                        : 'text-slate-400 hover:bg-slate-600 hover:text-slate-200'
+                                                        }`}
+                                                    title={item.is_pinned ? "Unpin Post" : "Pin Post"}
+                                                >
+                                                    <Pin className={`w-4 h-4 ${item.is_pinned ? 'fill-current' : ''}`} />
+                                                </button>
+                                                <button
+                                                    onClick={() => openEditPage(item)}
+                                                    className="p-2 hover:bg-blue-500/20 rounded-lg transition text-blue-400 hover:text-blue-300"
+                                                    title="Edit"
+                                                >
+                                                    <Edit2 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setBlogToDelete(item);
+                                                        setDeleteModalOpen(true);
+                                                    }}
+                                                    className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400 hover:text-red-300"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {!loading && filteredAndSortedData.length > 0 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-slate-700">
+                        {/* Left: Items per page */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-slate-400">Show</span>
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                                className="px-3 py-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <span className="text-sm text-slate-400">entries</span>
+                        </div>
+
+                        {/* Center: Page navigation */}
+                        <div className="flex items-center gap-1">
+                            {/* First page */}
+                            <button
+                                onClick={() => handlePageChange(1)}
+                                disabled={currentPage === 1}
+                                className={`p-2 rounded-lg transition ${currentPage === 1
+                                        ? 'text-slate-600 cursor-not-allowed'
+                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    }`}
+                                title="First page"
+                            >
+                                <ChevronsLeft className="w-4 h-4" />
+                            </button>
+
+                            {/* Previous page */}
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`p-2 rounded-lg transition ${currentPage === 1
+                                        ? 'text-slate-600 cursor-not-allowed'
+                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    }`}
+                                title="Previous page"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            {/* Page numbers */}
+                            {(() => {
+                                const pages = [];
+                                const maxVisiblePages = 5;
+                                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                                if (endPage - startPage < maxVisiblePages - 1) {
+                                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                                }
+
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(
+                                        <button
+                                            key={i}
+                                            onClick={() => handlePageChange(i)}
+                                            className={`min-w-[2rem] px-3 py-1.5 rounded-lg text-sm font-medium transition ${currentPage === i
+                                                    ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white'
+                                                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                                }`}
+                                        >
+                                            {i}
+                                        </button>
+                                    );
+                                }
+                                return pages;
+                            })()}
+
+                            {/* Next page */}
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={`p-2 rounded-lg transition ${currentPage === totalPages
+                                        ? 'text-slate-600 cursor-not-allowed'
+                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    }`}
+                                title="Next page"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+
+                            {/* Last page */}
+                            <button
+                                onClick={() => handlePageChange(totalPages)}
+                                disabled={currentPage === totalPages}
+                                className={`p-2 rounded-lg transition ${currentPage === totalPages
+                                        ? 'text-slate-600 cursor-not-allowed'
+                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    }`}
+                                title="Last page"
+                            >
+                                <ChevronsRight className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Right: Showing entries info */}
+                        <div className="text-sm text-slate-400">
+                            Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} entries
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Delete Confirmation Modal */}

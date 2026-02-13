@@ -334,6 +334,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                     className="bg-transparent border-none outline-none text-white placeholder-slate-500 flex-1 min-w-[120px] py-1"
                                     placeholder={selectedTags.length === 0 ? "Select or type to add tags..." : ""}
                                     autoComplete="off"
+                                    required
                                 />
                             </div>
                             <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none z-10" />
@@ -453,40 +454,44 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                         )}
                     </div>
 
-                    {/* Ping Status */}
+                    {/* Pin Status */}
                     <div>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                name="is_pinned"
-                                checked={formData.is_pinned}
-                                onChange={(e) => setFormData({ ...formData, is_pinned: e.target.checked })}
-                                className="w-4 h-4 bg-slate-700 border-slate-600 rounded focus:ring-yellow-500 text-yellow-500 cursor-pointer"
-                            />
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <div className="relative w-4 h-4 shrink-0">
+                                <input
+                                    type="checkbox"
+                                    name="is_pinned"
+                                    checked={formData.is_pinned}
+                                    onChange={(e) => setFormData({ ...formData, is_pinned: e.target.checked })}
+                                    className="hidden peer"
+                                />
+                                <div className="absolute inset-0 rounded-full border border-slate-400 peer-checked:border-green-500 transition-colors"></div>
+                                <div className="absolute inset-[3px] rounded-full bg-green-500 scale-0 peer-checked:scale-100 transition-transform duration-200"></div>
+                            </div>
                             <span className="text-slate-300 text-sm">Pin this post to top</span>
                         </label>
                     </div>
 
                     {/* Content */}
-                    
 
-<div>
-  <div className="flex justify-between items-end mb-2">
-    <label className="block text-sm font-medium text-slate-300">
-      Content
-    </label>
-  </div>
 
-  <TiptapEditor
-    formData={formData}
-    setFormData={setFormData}
-  />
+                    <div>
+                        <div className="flex justify-between items-end mb-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                Content
+                            </label>
+                        </div>
 
-  <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
-    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/50"></span>
-    Rich text editor enabled. Formatting will be saved as HTML.
-  </p>
-</div>
+                        <TiptapEditor
+                            formData={formData}
+                            setFormData={setFormData}
+                        />
+
+                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/50"></span>
+                            Rich text editor enabled. Formatting will be saved as HTML.
+                        </p>
+                    </div>
 
 
 
