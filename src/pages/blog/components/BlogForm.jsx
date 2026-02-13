@@ -12,7 +12,6 @@ import {
     Plus,
     Bold,
     Italic,
-    Underline,
     List,
     ListOrdered,
     Heading1,
@@ -27,6 +26,10 @@ import { POST_url, GET_url } from "../../../connection/connection";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../../../env/env";
+
+
+import Underline from "@tiptap/extension-underline";
+import TiptapEditor from "./TitapEditor";
 
 
 const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, submitError, user }) => {
@@ -465,246 +468,29 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                     </div>
 
                     {/* Content */}
-                    <div>
-                        <div className="flex justify-between items-end mb-2">
-                            <label className="block text-sm font-medium text-slate-300">
-                                Content
-                            </label>
+                    
 
-                            {/* Toolbar - Horizontal on Right of Label */}
-                            <div className="flex flex-wrap gap-0.5 p-1 bg-slate-700/50 border border-slate-600 rounded-lg items-center">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
+<div>
+  <div className="flex justify-between items-end mb-2">
+    <label className="block text-sm font-medium text-slate-300">
+      Content
+    </label>
+  </div>
 
-                                        const newText = `${before}# ${selected}${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 2, end + 2);
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Heading 1"
-                                >
-                                    <Heading1 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
+  <TiptapEditor
+    formData={formData}
+    setFormData={setFormData}
+  />
 
-                                        const newText = `${before}## ${selected}${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 3, end + 3);
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Heading 2"
-                                >
-                                    <Heading2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}### ${selected}${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 4, end + 4);
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Heading 3"
-                                >
-                                    <Heading3 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}###### ${selected}${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 7, end + 7);
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Heading 6"
-                                >
-                                    <Heading6 className="w-3.5 h-3.5" />
-                                </button>
-                                <div className="w-px h-4 bg-slate-600 mx-1"></div>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}**${selected || 'bold'}**${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            const newCursor = end + 4 + (selected ? 0 : 4);
-                                            textarea.setSelectionRange(start + 2, start + 2 + (selected ? selected.length : 4));
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Bold"
-                                >
-                                    <Bold className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}*${selected || 'italic'}*${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 1, start + 1 + (selected ? selected.length : 6));
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Italic"
-                                >
-                                    <Italic className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}<u>${selected || 'u'}</u>${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 3, start + 3 + (selected ? selected.length : 1));
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Underline"
-                                >
-                                    <Underline className="w-3.5 h-3.5" />
-                                </button>
-                                <div className="w-px h-4 bg-slate-600 mx-1"></div>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}\n- ${selected}${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 3, end + 3);
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Bullet List"
-                                >
-                                    <List className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const textarea = document.getElementById('content-textarea');
-                                        const start = textarea.selectionStart;
-                                        const end = textarea.selectionEnd;
-                                        const text = formData.content_preview;
-                                        const before = text.substring(0, start);
-                                        const selected = text.substring(start, end);
-                                        const after = text.substring(end);
-
-                                        const newText = `${before}\n1. ${selected}${after}`;
-                                        setFormData({ ...formData, content_preview: newText });
-                                        setTimeout(() => {
-                                            textarea.focus();
-                                            textarea.setSelectionRange(start + 4, end + 4);
-                                        }, 0);
-                                    }}
-                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
-                                    title="Ordered List"
-                                >
-                                    <ListOrdered className="w-3.5 h-3.5" />
-                                </button>
-                                <div className="w-px h-4 bg-slate-600 mx-1"></div>
+  <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/50"></span>
+    Rich text editor enabled. Formatting will be saved as HTML.
+  </p>
+</div>
 
 
 
-                            </div>
-                        </div>
 
-                        <textarea
-                            id="content-textarea"
-                            name="content_preview"
-                            value={formData.content_preview}
-                            onChange={handleInputChange}
-                            rows={12}
-                            className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition min-h-[300px] text-white font-mono text-sm leading-relaxed"
-                            placeholder="Write your amazing blog post here..."
-                            required
-                        />
-                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/50"></span>
-                            Markdown and HTML supported. Select text and use the toolbar to format.
-                        </p>
-                    </div>
 
                     {/* Error Message */}
                     {submitError && (
