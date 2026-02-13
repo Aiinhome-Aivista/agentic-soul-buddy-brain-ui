@@ -16,7 +16,6 @@ import {
     Tag,
     Clock
 } from "lucide-react";
-import { BLOG_STATUS } from "../../../common/constants";
 
 const BlogList = ({
     blogData,
@@ -32,6 +31,8 @@ const BlogList = ({
     handleTogglePin
 }) => {
     const [filterStatus, setFilterStatus] = React.useState('ALL'); // 'ALL', 'PUBLISHED', 'DRAFT'
+    const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+    const [blogToDelete, setBlogToDelete] = React.useState(null);
 
     // Helper to strip HTML tags for preview (if content is HTML)
     const stripHtml = (html) => {
@@ -134,7 +135,7 @@ const BlogList = ({
                         <div>
                             <p className="text-slate-400 text-sm">Published</p>
                             <p className="text-2xl font-bold">
-                                {blogData.filter(item => item.is_post === 1 || item.is_post === "1" || item.status === BLOG_STATUS.PUBLISHED).length}
+                                {blogData.filter(item => item.is_post === 1 || item.is_post === "1").length}
                             </p>
                         </div>
                     </div>
@@ -150,7 +151,7 @@ const BlogList = ({
                         <div>
                             <p className="text-slate-400 text-sm">Drafts</p>
                             <p className="text-2xl font-bold">
-                                {blogData.filter(item => item.is_post === 0 || item.is_post === "0" || item.status === BLOG_STATUS.DRAFT).length}
+                                {blogData.filter(item => item.is_post === 0 || item.is_post === "0").length}
                             </p>
                         </div>
                     </div>
@@ -217,10 +218,10 @@ const BlogList = ({
 
                                         // 2. Filter by Status (Published/Draft/All)
                                         if (filterStatus === 'PUBLISHED') {
-                                            return item.is_post === 1 || item.is_post === "1" || item.status === BLOG_STATUS.PUBLISHED;
+                                            return item.is_post === 1 || item.is_post === "1";
                                         }
                                         if (filterStatus === 'DRAFT') {
-                                            return item.is_post === 0 || item.is_post === "0" || item.status === BLOG_STATUS.DRAFT;
+                                            return item.is_post === 0 || item.is_post === "0";
                                         }
 
                                         return true; // 'ALL'
@@ -295,17 +296,17 @@ const BlogList = ({
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.status === BLOG_STATUS.PUBLISHED || item.is_post === 1
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.is_post === 1 || item.is_post === "1"
                                                     ? 'bg-green-500/10 text-green-400 border-green-500/20'
                                                     : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
                                                     }`}>
-                                                    {item.status === BLOG_STATUS.PUBLISHED || item.is_post === 1 ? 'Published' : 'Draft'}
+                                                    {item.is_post === 1 || item.is_post === "1" ? 'Published' : 'Draft'}
                                                 </span>
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex flex-col gap-1 text-slate-400 text-sm">
                                                     <div className="flex items-center gap-1">
-                                                        
+
                                                         <span>
                                                             {new Date(item.created_at || item.date).toLocaleDateString('en-GB', {
                                                                 day: '2-digit',
@@ -315,7 +316,7 @@ const BlogList = ({
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-1 text-xs text-slate-500">
-                                                       
+
                                                         <span>
                                                             {new Date(item.created_at || item.date).toLocaleTimeString([], {
                                                                 hour: '2-digit',
@@ -344,30 +345,16 @@ const BlogList = ({
                                                     >
                                                         <Edit2 className="w-4 h-4" />
                                                     </button>
-                                                    {deleteConfirm === item.id ? (
-                                                        <div className="flex items-center gap-1">
-                                                            <button
-                                                                onClick={() => handleDelete(item.id, item.author_name)}
-                                                                className="px-2 py-1 bg-red-500 hover:bg-red-600 rounded text-xs text-white"
-                                                            >
-                                                                Confirm
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setDeleteConfirm(null)}
-                                                                className="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-xs"
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => setDeleteConfirm(item.id)}
-                                                            className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400 hover:text-red-300"
-                                                            title="Delete"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    )}
+                                                    <button
+                                                        onClick={() => {
+                                                            setBlogToDelete(item);
+                                                            setDeleteModalOpen(true);
+                                                        }}
+                                                        className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400 hover:text-red-300"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -377,6 +364,65 @@ const BlogList = ({
                     </table>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteModalOpen && blogToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                        {/* Modal Header */}
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-3 bg-red-500/20 rounded-lg">
+                                <Trash2 className="w-6 h-6 text-red-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Delete Blog Post</h3>
+                                <p className="text-sm text-slate-400">This action cannot be undone</p>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="mb-6">
+                            <p className="text-slate-300 mb-3">
+                                Are you sure you want to delete this blog post?
+                            </p>
+                            <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-3">
+                                <p className="text-sm text-slate-400 mb-1">Title:</p>
+                                <p className="text-white font-medium">{blogToDelete.title}</p>
+                            </div>
+                            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                                <p className="text-sm text-red-400 flex items-start gap-2">
+                                    <span className="text-lg">⚠️</span>
+                                    <span>This will permanently delete the blog post and all associated data.</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Modal Actions */}
+                        <div className="flex items-center gap-3 justify-end">
+                            <button
+                                onClick={() => {
+                                    setDeleteModalOpen(false);
+                                    setBlogToDelete(null);
+                                }}
+                                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition text-white font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleDelete(blogToDelete.id, blogToDelete.author_name);
+                                    setDeleteModalOpen(false);
+                                    setBlogToDelete(null);
+                                }}
+                                className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg transition text-white font-medium flex items-center gap-2"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Post
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };

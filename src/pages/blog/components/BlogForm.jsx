@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+
 import {
     ArrowLeft,
     FileText,
@@ -9,23 +9,44 @@ import {
     AlertCircle,
     Save,
     X,
-    Plus
+    Plus,
+    Bold,
+    Italic,
+    Underline,
+    List,
+    ListOrdered,
+    Heading1,
+    Heading2,
+    Heading6,
+    Heading3,
+    ChevronDown,
+
 } from "lucide-react";
 import { apiService } from "../../../service/ApiService";
 import { POST_url, GET_url } from "../../../connection/connection";
-import { BLOG_STATUS } from "../../../common/constants";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../../../env/env";
+
 
 const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, submitError, user }) => {
+
+    // Helper to get full image URL
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return "";
+        if (imagePath.startsWith('http') || imagePath.startsWith('blob:')) return imagePath;
+        return `${baseUrl}${imagePath.replace(/^\/+/, '')}`;
+    };
 
     const [formData, setFormData] = useState({
         title: "",
         content_preview: "",
         category_id: "",
         featured_image: "",
-        status: BLOG_STATUS.PUBLISHED,
+        is_post: 1,
         is_pinned: false,
         author_name: user?.full_name || "",
-        tags: "" // Will be stored as JSON string or comma separated, processing in submit
+        tags: ""
     });
 
     const [imageFile, setImageFile] = useState();
@@ -108,12 +129,16 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
             setSelectedTags(initialTags);
 
+            // Get the image path and construct full URL
+            const imagePath = editingItem.image_url || editingItem.image || editingItem.featured_image || "";
+            const fullImageUrl = getImageUrl(imagePath);
+
             setFormData({
                 title: editingItem.title || "",
                 content_preview: editingItem.content_preview || editingItem.content || "",
                 category_id: editingItem.category_id || "",
-                featured_image: editingItem.image || editingItem.featured_image || "", // Adjust based on what API returns
-                status: editingItem.is_post === 1 ? BLOG_STATUS.PUBLISHED : (editingItem.status || BLOG_STATUS.PUBLISHED),
+                featured_image: fullImageUrl,
+                is_post: editingItem.is_post === 1 || editingItem.is_post === "1" ? 1 : 0,
                 is_pinned: editingItem.is_pinned || false,
                 author_name: editingItem.author_name || user?.full_name || "",
                 tags: ""
@@ -164,10 +189,8 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         data.append("content_preview", formData.content_preview);
         data.append("category_id", formData.category_id);
         data.append("is_pinned", formData.is_pinned ? 1 : 0);
-        data.append("is_post", formData.status === BLOG_STATUS.PUBLISHED ? 1 : 0);
+        data.append("is_post", formData.is_post);
 
-        // Append Tags - sending as JSON string to handle array
-        // Adjust this if backend expects multiple 'tags' keys or different format
         data.append("tags", JSON.stringify(selectedTags));
 
         if (imageFile) {
@@ -224,13 +247,14 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                     value={formData.category_id}
                                     required
                                     onChange={handleInputChange}
-                                    className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition appearance-none text-white"
+                                    className="w-full pl-10 pr-10 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition appearance-none text-white"
                                 >
                                     <option value="" disabled className="bg-slate-800 text-slate-400">Select category</option>
                                     {categories.map((cat, index) => (
                                         <option key={cat.id || index} value={cat.id} className="bg-slate-800">{cat.name}</option>
                                     ))}
                                 </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                             </div>
                         </div>
 
@@ -243,10 +267,10 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        name="status"
-                                        value={BLOG_STATUS.PUBLISHED}
-                                        checked={formData.status === BLOG_STATUS.PUBLISHED}
-                                        onChange={handleInputChange}
+                                        name="is_post"
+                                        value={1}
+                                        checked={formData.is_post === 1}
+                                        onChange={(e) => setFormData({ ...formData, is_post: 1 })}
                                         className="hidden peer"
                                     />
                                     <div className="w-4 h-4 rounded-full border border-slate-400 peer-checked:border-green-500 peer-checked:bg-green-500 transition-colors"></div>
@@ -255,10 +279,10 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        name="status"
-                                        value={BLOG_STATUS.DRAFT}
-                                        checked={formData.status === BLOG_STATUS.DRAFT}
-                                        onChange={handleInputChange}
+                                        name="is_post"
+                                        value={0}
+                                        checked={formData.is_post === 0}
+                                        onChange={(e) => setFormData({ ...formData, is_post: 0 })}
                                         className="hidden peer"
                                     />
                                     <div className="w-4 h-4 rounded-full border border-slate-400 peer-checked:border-slate-400 peer-checked:bg-slate-500 transition-colors"></div>
@@ -276,7 +300,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                         <div className="relative group">
                             <Tag className="absolute left-3 top-3 w-4 h-4 text-slate-400 z-10" />
                             <div
-                                className={`w-full pl-10 pr-4 py-2 min-h-[50px] bg-slate-700/50 border rounded-lg transition flex flex-wrap gap-2 items-center cursor-text ${isTagDropdownOpen ? 'border-yellow-500 ring-1 ring-yellow-500' : 'border-slate-600 focus-within:border-yellow-500 focus-within:ring-1 focus-within:ring-yellow-500'}`}
+                                className={`w-full pl-10 pr-10 py-2 min-h-[50px] bg-slate-700/50 border rounded-lg transition flex flex-wrap gap-2 items-center cursor-text ${isTagDropdownOpen ? 'border-yellow-500 ring-1 ring-yellow-500' : 'border-slate-600 focus-within:border-yellow-500 focus-within:ring-1 focus-within:ring-yellow-500'}`}
                                 onClick={() => {
                                     document.getElementById('tag-input').focus();
                                     setIsTagDropdownOpen(true);
@@ -309,6 +333,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                     autoComplete="off"
                                 />
                             </div>
+                            <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none z-10" />
 
                             {/* Custom Dropdown for Tags */}
                             {isTagDropdownOpen && (
@@ -441,20 +466,243 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
                     {/* Content */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">
-                            Content
-                        </label>
+                        <div className="flex justify-between items-end mb-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                Content
+                            </label>
+
+                            {/* Toolbar - Horizontal on Right of Label */}
+                            <div className="flex flex-wrap gap-0.5 p-1 bg-slate-700/50 border border-slate-600 rounded-lg items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}# ${selected}${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 2, end + 2);
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Heading 1"
+                                >
+                                    <Heading1 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}## ${selected}${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 3, end + 3);
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Heading 2"
+                                >
+                                    <Heading2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}### ${selected}${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 4, end + 4);
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Heading 3"
+                                >
+                                    <Heading3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}###### ${selected}${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 7, end + 7);
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Heading 6"
+                                >
+                                    <Heading6 className="w-3.5 h-3.5" />
+                                </button>
+                                <div className="w-px h-4 bg-slate-600 mx-1"></div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}**${selected || 'bold'}**${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            const newCursor = end + 4 + (selected ? 0 : 4);
+                                            textarea.setSelectionRange(start + 2, start + 2 + (selected ? selected.length : 4));
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Bold"
+                                >
+                                    <Bold className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}*${selected || 'italic'}*${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 1, start + 1 + (selected ? selected.length : 6));
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Italic"
+                                >
+                                    <Italic className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}<u>${selected || 'u'}</u>${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 3, start + 3 + (selected ? selected.length : 1));
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Underline"
+                                >
+                                    <Underline className="w-3.5 h-3.5" />
+                                </button>
+                                <div className="w-px h-4 bg-slate-600 mx-1"></div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}\n- ${selected}${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 3, end + 3);
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Bullet List"
+                                >
+                                    <List className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const textarea = document.getElementById('content-textarea');
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = formData.content_preview;
+                                        const before = text.substring(0, start);
+                                        const selected = text.substring(start, end);
+                                        const after = text.substring(end);
+
+                                        const newText = `${before}\n1. ${selected}${after}`;
+                                        setFormData({ ...formData, content_preview: newText });
+                                        setTimeout(() => {
+                                            textarea.focus();
+                                            textarea.setSelectionRange(start + 4, end + 4);
+                                        }, 0);
+                                    }}
+                                    className="p-1.5 hover:bg-slate-600 rounded text-slate-300 hover:text-white"
+                                    title="Ordered List"
+                                >
+                                    <ListOrdered className="w-3.5 h-3.5" />
+                                </button>
+                                <div className="w-px h-4 bg-slate-600 mx-1"></div>
+
+
+
+                            </div>
+                        </div>
+
                         <textarea
+                            id="content-textarea"
                             name="content_preview"
                             value={formData.content_preview}
                             onChange={handleInputChange}
                             rows={12}
                             className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition min-h-[300px] text-white font-mono text-sm leading-relaxed"
-                            placeholder="<p>Write your amazing blog post here...</p>"
+                            placeholder="Write your amazing blog post here..."
                             required
                         />
-                        <p className="text-xs text-slate-500 mt-2">
-                            Tip: You can use HTML tags for formatting.
+                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/50"></span>
+                            Markdown and HTML supported. Select text and use the toolbar to format.
                         </p>
                     </div>
 
@@ -515,3 +763,4 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 };
 
 export default BlogForm;
+

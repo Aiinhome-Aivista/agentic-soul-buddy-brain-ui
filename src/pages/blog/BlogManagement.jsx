@@ -92,7 +92,7 @@ function BlogManagement() {
                 ? `${POST_url.blogs}/${editingItem.id}`
                 : POST_url.blogs;
 
-            const method = "PUT";
+            const method = editingItem ? "PUT" : "POST";
 
             // Prepare FormData
             const data = new FormData();
