@@ -45,4 +45,6 @@ export const GET_url = {
 export const DELETE_url = {
   deleteSession: (sessionName) =>
     `${API_BASE_URL}/delete_session/${sessionName}`,
+  deleteCategory: (id) => `${API_BASE_URL}/categories/${id}`,
+  deleteBlog: (id) => `${API_BASE_URL}/blogs/${id}`,
 };

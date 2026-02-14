@@ -3,7 +3,7 @@ import { AlertCircle, X } from "lucide-react";
 import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
 import { apiService } from "../../service/ApiService";
-import { POST_url } from "../../connection/connection";
+import { POST_url, DELETE_url } from "../../connection/connection";
 import { Context } from "../../common/helper/Context";
 
 function BlogManagement() {
@@ -139,8 +139,7 @@ function BlogManagement() {
 
     const handleDelete = async (id, authorName) => {
         try {
-
-            const url = `${POST_url.blogs}/${id}`;
+            const url = DELETE_url.deleteBlog(id);
             const response = await apiService({
                 url,
                 method: "DELETE",

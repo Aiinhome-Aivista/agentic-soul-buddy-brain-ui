@@ -118,7 +118,7 @@ function Index() {
         }
       />
 
-      {/* Blog Management - Only super_admin */}
+      {/* Blog Management - Only super_admin and admin */}
       <Route
         path="/blog"
         element={
@@ -129,7 +129,7 @@ function Index() {
         }
       />
 
-      {/* Category Management - Only super_admin */}
+      {/* Category Management - Only super_admin  and admin*/}
       <Route
         path="/category"
         element={

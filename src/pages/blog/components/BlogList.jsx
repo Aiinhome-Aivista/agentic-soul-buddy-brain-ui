@@ -426,8 +426,8 @@ const BlogList = ({
                                 onClick={() => handlePageChange(1)}
                                 disabled={currentPage === 1}
                                 className={`p-2 rounded-lg transition ${currentPage === 1
-                                        ? 'text-slate-600 cursor-not-allowed'
-                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    ? 'text-slate-600 cursor-not-allowed'
+                                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                                     }`}
                                 title="First page"
                             >
@@ -439,8 +439,8 @@ const BlogList = ({
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
                                 className={`p-2 rounded-lg transition ${currentPage === 1
-                                        ? 'text-slate-600 cursor-not-allowed'
-                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    ? 'text-slate-600 cursor-not-allowed'
+                                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                                     }`}
                                 title="Previous page"
                             >
@@ -464,8 +464,8 @@ const BlogList = ({
                                             key={i}
                                             onClick={() => handlePageChange(i)}
                                             className={`min-w-[2rem] px-3 py-1.5 rounded-lg text-sm font-medium transition ${currentPage === i
-                                                    ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white'
-                                                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                                ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white'
+                                                : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                                                 }`}
                                         >
                                             {i}
@@ -480,8 +480,8 @@ const BlogList = ({
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
                                 className={`p-2 rounded-lg transition ${currentPage === totalPages
-                                        ? 'text-slate-600 cursor-not-allowed'
-                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    ? 'text-slate-600 cursor-not-allowed'
+                                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                                     }`}
                                 title="Next page"
                             >
@@ -493,8 +493,8 @@ const BlogList = ({
                                 onClick={() => handlePageChange(totalPages)}
                                 disabled={currentPage === totalPages}
                                 className={`p-2 rounded-lg transition ${currentPage === totalPages
-                                        ? 'text-slate-600 cursor-not-allowed'
-                                        : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    ? 'text-slate-600 cursor-not-allowed'
+                                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                                     }`}
                                 title="Last page"
                             >
@@ -555,7 +555,7 @@ const BlogList = ({
                             </button>
                             <button
                                 onClick={() => {
-                                    handleDelete(blogToDelete.id, blogToDelete.author_name);
+                                    handleDelete(blogToDelete.id, blogToDelete.author_name || blogToDelete.author || blogToDelete.created_by);
                                     setDeleteModalOpen(false);
                                     setBlogToDelete(null);
                                 }}

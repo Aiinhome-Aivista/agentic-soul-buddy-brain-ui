@@ -3,7 +3,7 @@ import { AlertCircle, X } from "lucide-react";
 import CategoryList from "./components/CategoryList";
 import CategoryForm from "./components/CategoryForm";
 import { apiService } from "../../service/ApiService";
-import { POST_url } from "../../connection/connection";
+import { POST_url, DELETE_url } from "../../connection/connection";
 import { Context } from "../../common/helper/Context";
 
 function CategoryManagement() {
@@ -112,7 +112,7 @@ function CategoryManagement() {
     const handleDelete = async (id, authorName) => {
         try {
             const response = await apiService({
-                url: `${POST_url.category}/${id}`,
+                url: DELETE_url.deleteCategory(id),
                 method: "DELETE",
                 params: { author_name: authorName || user?.full_name || "Admin" }
             });
