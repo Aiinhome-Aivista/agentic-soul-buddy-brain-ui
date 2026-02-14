@@ -60,6 +60,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
     const [selectedTags, setSelectedTags] = useState([]);
     const [tagInput, setTagInput] = useState("");
     const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
+    const [validationMessage, setValidationMessage] = useState("");
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -185,6 +186,21 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
+        setValidationMessage("");
+
+        // Validation
+        const errors = [];
+        if (!formData.title.trim()) errors.push("Title");
+        if (!formData.category_id) errors.push("Category");
+        if (selectedTags.length === 0) errors.push("at least one Tag");
+        if (!formData.content_preview || formData.content_preview.replace(/<[^>]*>/g, '').trim().length === 0) errors.push("Content");
+
+        if (errors.length > 0) {
+            setValidationMessage(`Please provide: ${errors.join(", ")}`);
+            // Scroll to top to see error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
 
         const data = new FormData();
         data.append("author_name", formData.author_name);
@@ -334,7 +350,6 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                     className="bg-transparent border-none outline-none text-white placeholder-slate-500 flex-1 min-w-[120px] py-1"
                                     placeholder={selectedTags.length === 0 ? "Select or type to add tags..." : ""}
                                     autoComplete="off"
-                                    required
                                 />
                             </div>
                             <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none z-10" />
@@ -497,11 +512,11 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
 
 
-                    {/* Error Message */}
-                    {submitError && (
+                    {/* Validation/Error Message */}
+                    {(submitError || validationMessage) && (
                         <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg animate-fadeIn">
                             <AlertCircle className="w-4 h-4 text-red-400" />
-                            <span className="text-red-400 text-sm">{submitError}</span>
+                            <span className="text-red-400 text-sm">{validationMessage || submitError}</span>
                         </div>
                     )}
 

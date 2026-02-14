@@ -10,7 +10,14 @@ import Underline from "@tiptap/extension-underline";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
+import TextAlign from "@tiptap/extension-text-align";
 import { useEffect } from "react";
+import {
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+} from "lucide-react";
 
 // Custom OrderedList extension for Roman numerals
 const RomanList = OrderedList.extend({
@@ -71,6 +78,10 @@ export default function TiptapEditor({ formData, setFormData }) {
       RomanList,
       AlphaList,
       ListItem,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+        alignments: ["left", "center", "right", "justify"],
+      }),
     ],
     content: formData.content_preview,
     onUpdate: ({ editor }) => {
@@ -207,6 +218,46 @@ export default function TiptapEditor({ formData, setFormData }) {
           className={buttonClass(editor.isActive("alphaList"))}
         >
           a,b,c
+        </button>
+
+        {/* Divider */}
+        <div className="w-px bg-slate-600 mx-1"></div>
+
+        {/* Alignment Buttons */}
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          className={buttonClass(editor.isActive({ textAlign: "left" }))}
+          title="Align Left"
+        >
+          <AlignLeft className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          className={buttonClass(editor.isActive({ textAlign: "center" }))}
+          title="Align Center"
+        >
+          <AlignCenter className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          className={buttonClass(editor.isActive({ textAlign: "right" }))}
+          title="Align Right"
+        >
+          <AlignRight className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          className={buttonClass(editor.isActive({ textAlign: "justify" }))}
+          title="Justify"
+        >
+          <AlignJustify className="w-4 h-4" />
         </button>
 
         {/* Divider */}

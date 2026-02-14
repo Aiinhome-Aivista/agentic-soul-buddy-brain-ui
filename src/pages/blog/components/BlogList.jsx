@@ -366,11 +366,12 @@ const BlogList = ({
                                             <div className="flex items-center gap-2">
                                                 <button
                                                     onClick={() => handleTogglePin(item.id)}
-                                                    className={`p-2 rounded-lg transition ${item.is_pinned
-                                                        ? 'text-yellow-400 bg-yellow-500/20 hover:bg-yellow-500/30'
-                                                        : 'text-slate-400 hover:bg-slate-600 hover:text-slate-200'
+                                                    disabled={true}
+                                                    className={`p-2 rounded-lg transition opacity-50 cursor-not-allowed ${item.is_pinned
+                                                        ? 'text-yellow-400 bg-yellow-500/20'
+                                                        : 'text-slate-400'
                                                         }`}
-                                                    title={item.is_pinned ? "Unpin Post" : "Pin Post"}
+                                                    title="Pinning is disabled"
                                                 >
                                                     <Pin className={`w-4 h-4 ${item.is_pinned ? 'fill-current' : ''}`} />
                                                 </button>
