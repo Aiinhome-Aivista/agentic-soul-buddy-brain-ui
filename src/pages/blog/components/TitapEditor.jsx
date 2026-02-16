@@ -1,5 +1,9 @@
-
-import { useEditor, EditorContent } from "@tiptap/react";
+import {
+  useEditor,
+  EditorContent,
+  NodeViewWrapper,
+  ReactNodeViewRenderer,
+} from "@tiptap/react";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
@@ -11,13 +15,189 @@ import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 import TextAlign from "@tiptap/extension-text-align";
-import { useEffect } from "react";
+import Image from "@tiptap/extension-image";
+import { useEffect, useRef } from "react";
 import {
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
+  Image as ImageIcon,
+  X,
 } from "lucide-react";
+
+// Custom Image Component with Resize and Delete
+const ImageComponent = ({ node, updateAttributes, deleteNode, selected }) => {
+  const { src, width, height, align } = node.attrs;
+
+  return (
+    <NodeViewWrapper
+      style={{
+        display: "flex",
+        justifyContent:
+          align === "left"
+            ? "flex-start"
+            : align === "right"
+              ? "flex-end"
+              : "center",
+        width: "100%",
+      }}
+      className="relative group my-4"
+    >
+      <div className={`relative inline-block overflow-hidden rounded-lg shadow-lg border-2 transition-all ${selected ? 'border-yellow-500 ring-2 ring-yellow-500/20' : 'border-slate-700'} bg-slate-800`}>
+        <img
+          src={src}
+          style={{
+            width: width === "auto" ? "100%" : `${width}px`,
+            height: height === "auto" ? "auto" : `${height}px`,
+            maxWidth: width === "auto" ? "500px" : "100%",
+            maxHeight: height === "auto" ? "500px" : "none",
+            objectFit: "contain",
+            display: "block",
+          }}
+          alt=""
+        />
+
+        {/* Delete Button */}
+        <button
+          type="button"
+          onClick={deleteNode}
+          className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg shadow-black/50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          title="Remove Image"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Dimension Controls Overlay */}
+        <div
+          contentEditable={false}
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/90 text-white px-3 py-1.5 rounded-lg text-[10px] flex items-center gap-3 backdrop-blur-sm border border-slate-600/50 z-10 whitespace-nowrap"
+        >
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-400">W:</span>
+            <input
+              type="number"
+              value={width === "auto" ? "" : width}
+              onChange={(e) =>
+                updateAttributes({ width: e.target.value || "auto" })
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              className="w-14 bg-slate-800 border border-slate-700 rounded px-1 py-0.5 outline-none text-center focus:border-yellow-500"
+              placeholder="500"
+            />
+          </div>
+          <div className="w-px h-3 bg-slate-700"></div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-400">H:</span>
+            <input
+              type="number"
+              value={height === "auto" ? "" : height}
+              onChange={(e) =>
+                updateAttributes({ height: e.target.value || "auto" })
+              }
+              onMouseDown={(e) => e.stopPropagation()}
+              className="w-14 bg-slate-800 border border-slate-700 rounded px-1 py-0.5 outline-none text-center focus:border-yellow-500"
+              placeholder="300"
+            />
+          </div>
+
+          <div className="w-px h-3 bg-slate-700"></div>
+
+          {/* Alignment Buttons */}
+          <div className="flex items-center gap-1 opacity-80">
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateAttributes({ align: "left" });
+              }}
+              className={`p-1 rounded transition ${align === 'left' ? 'bg-yellow-500 text-black' : 'hover:bg-slate-700'}`}
+              title="Align Left"
+            >
+              <AlignLeft className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateAttributes({ align: "center" });
+              }}
+              className={`p-1 rounded transition ${align === 'center' ? 'bg-yellow-500 text-black' : 'hover:bg-slate-700'}`}
+              title="Align Center"
+            >
+              <AlignCenter className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateAttributes({ align: "right" });
+              }}
+              className={`p-1 rounded transition ${align === 'right' ? 'bg-yellow-500 text-black' : 'hover:bg-slate-700'}`}
+              title="Align Right"
+            >
+              <AlignRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          <div className="w-px h-3 bg-slate-700"></div>
+
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              updateAttributes({ width: "auto", height: "auto", align: "center" });
+            }}
+            className="text-yellow-500 hover:text-yellow-400 font-medium"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </NodeViewWrapper>
+  );
+};
+
+// Extended Image extension with width/height attributes and custom node view
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: "auto",
+        parseHTML: (element) => element.getAttribute("width") || "auto",
+        renderHTML: (attributes) => ({
+          width: attributes.width,
+        }),
+      },
+      height: {
+        default: "auto",
+        parseHTML: (element) => element.getAttribute("height") || "auto",
+        renderHTML: (attributes) => ({
+          height: attributes.height,
+        }),
+      },
+      align: {
+        default: "left",
+        parseHTML: (element) => element.getAttribute("align") || "left",
+        renderHTML: (attributes) => ({
+          align: attributes.align,
+        }),
+      },
+    };
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageComponent);
+  },
+});
 
 // Custom OrderedList extension for Roman numerals
 const RomanList = OrderedList.extend({
@@ -59,9 +239,9 @@ const AlphaList = OrderedList.extend({
   },
 });
 
-
-
 export default function TiptapEditor({ formData, setFormData }) {
+  const fileInputRef = useRef(null);
+
   const editor = useEditor({
     extensions: [
       Document,
@@ -79,8 +259,11 @@ export default function TiptapEditor({ formData, setFormData }) {
       AlphaList,
       ListItem,
       TextAlign.configure({
-        types: ["heading", "paragraph"],
+        types: ["heading", "paragraph", "image"],
         alignments: ["left", "center", "right", "justify"],
+      }),
+      CustomImage.configure({
+        allowBase64: true,
       }),
     ],
     content: formData.content_preview,
@@ -113,6 +296,18 @@ export default function TiptapEditor({ formData, setFormData }) {
     }
 
     editor.chain().focus().deleteSelection().insertContent(transformedText).run();
+  };
+
+  const addImage = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const base64 = readerEvent.target.result;
+        editor.chain().focus().setImage({ src: base64 }).run();
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   useEffect(() => {
@@ -259,6 +454,23 @@ export default function TiptapEditor({ formData, setFormData }) {
         >
           <AlignJustify className="w-4 h-4" />
         </button>
+
+        {/* Image Upload */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current.click()}
+          className="px-2 py-1 text-xs rounded transition bg-slate-700 text-white hover:bg-slate-600"
+          title="Insert Image"
+        >
+          <ImageIcon className="w-4 h-4" />
+        </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={addImage}
+          accept="image/*"
+          className="hidden"
+        />
 
         {/* Divider */}
         <div className="w-px bg-slate-600 mx-1"></div>
