@@ -57,6 +57,8 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
     const [imageFile, setImageFile] = useState();
     const [categories, setCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
+    const [contentImages, setContentImages] = useState([]);
+    const [editorInstance, setEditorInstance] = useState(null);
 
 
     // Tags State
@@ -148,6 +150,24 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
             }
         };
         fetchTags();
+    }, []);
+
+    // Fetch Content Images
+    useEffect(() => {
+        const fetchContentImages = async () => {
+            try {
+                const response = await apiService({
+                    url: GET_url.contentImages,
+                    method: "GET"
+                });
+                if (response?.status === "success" && Array.isArray(response.data)) {
+                    setContentImages(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch content images", error);
+            }
+        };
+        fetchContentImages();
     }, []);
 
 
@@ -261,6 +281,14 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         if (imageFile) {
             data.append("image", imageFile);
         }
+
+        // Extract content image IDs from Tiptap HTML
+        const contentHtml = formData.content_preview;
+        const imgIdMatches = [...contentHtml.matchAll(/data-image-id="(\d+)"/g)];
+        const contentImageIds = [...new Set(imgIdMatches.map(match => match[1]))];
+
+        data.append("content_images", JSON.stringify(contentImageIds));
+
         onSubmit(data);
     };
 
@@ -503,47 +531,49 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                         <label className="block text-sm font-medium text-slate-300 mb-2">
                             Featured Image
                         </label>
-                        <div className="relative">
-                            <input
-                                type="file"
-                                name="image"
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        const imageUrl = URL.createObjectURL(file);
-                                        setFormData({
-                                            ...formData,
-                                            featured_image: imageUrl,
-                                        });
-                                        setImageFile(file);
-                                    }
-                                }}
-                                accept="image/*"
-                                className="w-full pl-4 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-500/10 file:text-yellow-400 hover:file:bg-yellow-500/20"
-                            />
-                        </div>
-                        {formData.featured_image && (
-                            <div className="mt-4 p-2 bg-slate-900/50 rounded-lg border border-slate-700 inline-block relative group">
-                                <p className="text-xs text-slate-500 mb-2">Image Preview:</p>
-                                <img
-                                    src={formData.featured_image}
-                                    alt="Preview"
-                                    className="max-h-40 rounded object-cover"
-                                    onError={(e) => e.target.style.display = 'none'}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setFormData({ ...formData, featured_image: "" });
-                                        setImageFile(null);
+                        <div className="flex flex-col lg:flex-row gap-6">
+                            <div className="flex-1">
+                                <input
+                                    type="file"
+                                    name="image"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            const imageUrl = URL.createObjectURL(file);
+                                            setFormData({
+                                                ...formData,
+                                                featured_image: imageUrl,
+                                            });
+                                            setImageFile(file);
+                                        }
                                     }}
-                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    title="Remove Image"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
+                                    accept="image/*"
+                                    className="w-full pl-4 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-500/10 file:text-yellow-400 hover:file:bg-yellow-500/20"
+                                />
+                                {formData.featured_image && (
+                                    <div className="mt-4 p-2 bg-slate-900/50 rounded-lg border border-slate-700 inline-block relative group">
+                                        <p className="text-xs text-slate-500 mb-2">Image Preview:</p>
+                                        <img
+                                            src={formData.featured_image}
+                                            alt="Preview"
+                                            className="max-h-40 rounded object-cover"
+                                            onError={(e) => e.target.style.display = 'none'}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData({ ...formData, featured_image: "" });
+                                                setImageFile(null);
+                                            }}
+                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            title="Remove Image"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
 
                     {/* Pin Status */}
@@ -577,6 +607,9 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                         <TiptapEditor
                             formData={formData}
                             setFormData={setFormData}
+                            contentImages={contentImages}
+                            onEditorReady={(editor) => setEditorInstance(editor)}
+                            authorName={formData.author_name}
                         />
 
                         <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">

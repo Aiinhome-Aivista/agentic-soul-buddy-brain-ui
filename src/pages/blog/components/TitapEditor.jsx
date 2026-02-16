@@ -16,7 +16,7 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 import TextAlign from "@tiptap/extension-text-align";
 import Image from "@tiptap/extension-image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlignLeft,
   AlignCenter,
@@ -24,11 +24,14 @@ import {
   AlignJustify,
   Image as ImageIcon,
   X,
+  Loader2,
 } from "lucide-react";
+import { apiService } from "../../../service/ApiService";
+import { POST_url } from "../../../connection/connection";
 
 // Custom Image Component with Resize and Delete
 const ImageComponent = ({ node, updateAttributes, deleteNode, selected }) => {
-  const { src, width, height, align } = node.attrs;
+  const { src, width, height, align, imageId } = node.attrs;
 
   return (
     <NodeViewWrapper
@@ -56,6 +59,7 @@ const ImageComponent = ({ node, updateAttributes, deleteNode, selected }) => {
             display: "block",
           }}
           alt=""
+          data-image-id={imageId}
         />
 
         {/* Delete Button */}
@@ -192,6 +196,13 @@ const CustomImage = Image.extend({
           align: attributes.align,
         }),
       },
+      imageId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-image-id"),
+        renderHTML: (attributes) => ({
+          "data-image-id": attributes.imageId,
+        }),
+      },
     };
   },
   addNodeView() {
@@ -239,8 +250,9 @@ const AlphaList = OrderedList.extend({
   },
 });
 
-export default function TiptapEditor({ formData, setFormData }) {
+export default function TiptapEditor({ formData, setFormData, onEditorReady, authorName }) {
   const fileInputRef = useRef(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -263,10 +275,32 @@ export default function TiptapEditor({ formData, setFormData }) {
         alignments: ["left", "center", "right", "justify"],
       }),
       CustomImage.configure({
-        allowBase64: true,
+        allowBase64: false,
       }),
     ],
     content: formData.content_preview,
+    editorProps: {
+      handleDrop: (view, event, slice, moved) => {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.startsWith("image/")) {
+            uploadImage(file);
+            return true;
+          }
+        }
+        return false;
+      },
+      handlePaste: (view, event) => {
+        if (event.clipboardData && event.clipboardData.files && event.clipboardData.files[0]) {
+          const file = event.clipboardData.files[0];
+          if (file.type.startsWith("image/")) {
+            uploadImage(file);
+            return true;
+          }
+        }
+        return false;
+      },
+    },
     onUpdate: ({ editor }) => {
       setFormData({
         ...formData,
@@ -274,6 +308,12 @@ export default function TiptapEditor({ formData, setFormData }) {
       });
     },
   });
+
+  useEffect(() => {
+    if (editor && typeof onEditorReady === 'function') {
+      onEditorReady(editor);
+    }
+  }, [editor, onEditorReady]);
 
   // Text transformation functions
   const transformText = (transformType) => {
@@ -298,15 +338,42 @@ export default function TiptapEditor({ formData, setFormData }) {
     editor.chain().focus().deleteSelection().insertContent(transformedText).run();
   };
 
+  const uploadImage = async (file) => {
+    if (!file || !editor) return;
+
+    setIsUploading(true);
+    try {
+      const data = new FormData();
+      data.append("image", file);
+      data.append("author_name", authorName || "Anonymous");
+
+      const response = await apiService({
+        url: POST_url.contentImages,
+        method: "POST",
+        data: data,
+      });
+
+      if (response?.status === "success" && response.data) {
+        const { image_url, id } = response.data;
+        editor.chain().focus().setImage({
+          src: image_url,
+          imageId: id
+        }).run();
+      } else {
+        console.error("Upload failed", response);
+      }
+    } catch (error) {
+      console.error("Failed to upload image", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const addImage = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (readerEvent) => {
-        const base64 = readerEvent.target.result;
-        editor.chain().focus().setImage({ src: base64 }).run();
-      };
-      reader.readAsDataURL(file);
+      uploadImage(file);
+      if (e.target) e.target.value = ''; // Reset input
     }
   };
 
@@ -458,11 +525,16 @@ export default function TiptapEditor({ formData, setFormData }) {
         {/* Image Upload */}
         <button
           type="button"
-          onClick={() => fileInputRef.current.click()}
-          className="px-2 py-1 text-xs rounded transition bg-slate-700 text-white hover:bg-slate-600"
-          title="Insert Image"
+          onClick={() => !isUploading && fileInputRef.current.click()}
+          className={`px-2 py-1 text-xs rounded transition ${isUploading ? 'opacity-50 cursor-not-allowed bg-slate-600' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+          title={isUploading ? "Uploading..." : "Insert Image"}
+          disabled={isUploading}
         >
-          <ImageIcon className="w-4 h-4" />
+          {isUploading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-yellow-500" />
+          ) : (
+            <ImageIcon className="w-4 h-4" />
+          )}
         </button>
         <input
           type="file"
@@ -520,7 +592,6 @@ export default function TiptapEditor({ formData, setFormData }) {
           [&_li]:mb-1
           [&_p]:mb-3"
       />
-
     </div>
   );
 }

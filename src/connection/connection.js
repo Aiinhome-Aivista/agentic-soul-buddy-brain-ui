@@ -24,7 +24,7 @@ export const POST_url = {
   // New sub-category endpoints
   addSubCategories: (categoryId) => `${API_BASE_URL}/categories/${categoryId}/subcategories`,
   getSubCategoriesByAll: `${API_BASE_URL}/categories/subcategories/all`,
-
+  contentImages: `${API_BASE_URL}/content-images`,
 
 
 };
@@ -44,9 +44,8 @@ export const GET_url = {
   seo_details: `${API_BASE_URL}/seo`,
   category: `${API_BASE_URL}/categories`,
   listAllSubCategories: `${API_BASE_URL}/categories/subcategories/list-all`,
-  tags: `${API_BASE_URL}/blogs/tags`
-
-
+  tags: `${API_BASE_URL}/blogs/tags`,
+  contentImages: `${API_BASE_URL}/content-images`,
 };
 
 export const PUT_url = {
