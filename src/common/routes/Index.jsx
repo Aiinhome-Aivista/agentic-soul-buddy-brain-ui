@@ -12,7 +12,9 @@ import SoulJunctionUsers from "../../pages/users/SoulJunctionUsers"
 import SeoManagement from "../../pages/seo/SeoManagement"
 import BlogManagement from "../../pages/blog/BlogManagement"
 import CategoryManagement from "../../pages/category/CategoryManagement"
+import SubCategoryManagement from "../../pages/category/sub-category/SubCategoryManagement"
 import Login from "../../pages/auth/Login"
+
 import ProtectedRoute from "./ProtectedRoute"
 
 function Index() {
@@ -20,6 +22,17 @@ function Index() {
     <Routes>
       {/* Public Route */}
       <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/subcategory"
+        element={
+          <ProtectedRoute
+            element={<DefaultLayout><SubCategoryManagement /></DefaultLayout>}
+            allowedRoles={['super_admin', 'admin']}
+          />
+        }
+      />
+
 
       {/* Protected Routes with Role-Based Access */}
       {/* Home - Only super_admin */}
@@ -129,7 +142,6 @@ function Index() {
         }
       />
 
-      {/* Category Management - Only super_admin  and admin*/}
       <Route
         path="/category"
         element={
@@ -139,6 +151,9 @@ function Index() {
           />
         }
       />
+
+
+
 
       {/* Fallback - Redirect to login */}
       <Route path="*" element={<Navigate to="/login" replace />} />

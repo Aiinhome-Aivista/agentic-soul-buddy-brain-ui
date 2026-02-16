@@ -12,7 +12,8 @@ const secondaryLinks = [
   { label: 'Admin', icon: Shield, path: '/admin-management', roles: ['super_admin'] },
   { label: 'SEO', icon: Globe, path: '/seo', roles: ['super_admin'] },
   { label: 'Blog', icon: BookOpen, path: '/blog', roles: ['super_admin', 'admin'] },
-  { label: 'Category', icon: LayoutList, path: '/category', roles: ['super_admin', 'admin'] }
+  { label: 'Category', icon: LayoutList, path: '/category', roles: ['super_admin', 'admin'] },
+  { label: 'Sub Category', icon: LayoutList, path: '/subcategory', roles: ['super_admin', 'admin'] }
 ];
 
 function Header() {

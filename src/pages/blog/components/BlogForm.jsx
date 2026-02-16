@@ -45,7 +45,9 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         title: "",
         content_preview: "",
         category_id: "",
+        sub_category_id: "",
         featured_image: "",
+
         is_post: 1,
         is_pinned: false,
         author_name: user?.full_name || "",
@@ -54,6 +56,8 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
     const [imageFile, setImageFile] = useState();
     const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
+
 
     // Tags State
     const [availableTags, setAvailableTags] = useState([]);
@@ -80,6 +84,43 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         };
         fetchCategories();
     }, []);
+
+    useEffect(() => {
+        const fetchSubCategories = async () => {
+            if (!formData.category_id) {
+                setSubCategories([]);
+                return;
+            }
+
+            const selectedCat = categories.find(c => String(c.id) === String(formData.category_id));
+            if (!selectedCat) return;
+
+            try {
+                const response = await apiService({
+                    url: POST_url.getSubCategoriesByAll,
+                    method: "POST",
+                    data: { category_name: selectedCat.name.trim() }
+                });
+
+
+                if (response?.status === "success" && Array.isArray(response.subcategories)) {
+                    // Map names back to the format expected by the dropdown
+                    setSubCategories(response.subcategories.map(name => ({
+                        id: name, // Using name as ID since API returns array of strings
+                        name: name
+                    })));
+                } else {
+                    setSubCategories([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch sub-categories", error);
+                setSubCategories([]);
+            }
+        };
+        fetchSubCategories();
+    }, [formData.category_id, categories]);
+
+
 
     // Fetch Tags
     useEffect(() => {
@@ -141,7 +182,9 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                 title: editingItem.title || "",
                 content_preview: editingItem.content_preview || editingItem.content || "",
                 category_id: editingItem.category_id || "",
+                sub_category_id: editingItem.sub_category_id || "",
                 featured_image: fullImageUrl,
+
                 is_post: editingItem.is_post === 1 || editingItem.is_post === "1" ? 1 : 0,
                 is_pinned: editingItem.is_pinned || false,
                 author_name: editingItem.author_name || user?.full_name || "",
@@ -207,7 +250,10 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         data.append("title", formData.title);
         data.append("content_preview", formData.content_preview);
         data.append("category_id", formData.category_id);
+        data.append("sub_category_id", formData.sub_category_id);
+        data.append("subcategory", formData.sub_category_id);
         data.append("is_pinned", formData.is_pinned ? 1 : 0);
+
         data.append("is_post", formData.is_post);
 
         data.append("tags", JSON.stringify(selectedTags));
@@ -265,7 +311,11 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                     name="category_id"
                                     value={formData.category_id}
                                     required
-                                    onChange={handleInputChange}
+                                    onChange={(e) => {
+                                        handleInputChange(e);
+                                        // Reset sub-category when category changes
+                                        setFormData(prev => ({ ...prev, sub_category_id: "" }));
+                                    }}
                                     className="w-full pl-10 pr-10 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition appearance-none text-white"
                                 >
                                     <option value="" disabled className="bg-slate-800 text-slate-400">Select category</option>
@@ -276,6 +326,32 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                             </div>
                         </div>
+
+                        {/* Sub Category */}
+                        <div>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">
+                                Sub Category
+                            </label>
+                            <div className="relative">
+                                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <select
+                                    name="sub_category_id"
+                                    value={formData.sub_category_id}
+                                    onChange={handleInputChange}
+                                    disabled={!formData.category_id}
+                                    className="w-full pl-10 pr-10 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition appearance-none text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <option value="" className="bg-slate-800 text-slate-400">Select sub-category</option>
+                                    {subCategories
+                                        .map((sub, index) => (
+                                            <option key={sub.id || index} value={sub.id} className="bg-slate-800">{sub.name}</option>
+                                        ))}
+
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                            </div>
+                        </div>
+
 
                         {/* Status */}
                         <div>
@@ -310,6 +386,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                             </div>
                         </div>
                     </div>
+
 
                     {/* Tags Field */}
                     <div>
