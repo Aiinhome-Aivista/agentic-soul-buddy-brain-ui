@@ -3,7 +3,7 @@ import { AlertCircle, X } from "lucide-react";
 import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
 import { apiService } from "../../service/ApiService";
-import { POST_url, DELETE_url } from "../../connection/connection";
+import { POST_url, DELETE_url, PUT_url } from "../../connection/connection";
 import { Context } from "../../common/helper/Context";
 
 function BlogManagement() {
@@ -89,7 +89,7 @@ function BlogManagement() {
 
         try {
             const url = editingItem
-                ? `${POST_url.blogs}/${editingItem.id}`
+                ? PUT_url.updateBlog(editingItem.id)
                 : POST_url.blogs;
 
             const method = editingItem ? "PUT" : "POST";
@@ -143,7 +143,7 @@ function BlogManagement() {
             const response = await apiService({
                 url,
                 method: "DELETE",
-                params: { author_name: authorName || user?.full_name || "Admin" }
+                params: { author_name: authorName || user?.full_name || user?.username || "Admin" }
             });
 
             if (response?.error) {

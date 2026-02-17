@@ -50,7 +50,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
         is_post: 1,
         is_pinned: false,
-        author_name: user?.full_name || "",
+        author_name: user?.full_name || user?.username || "Admin",
         tags: ""
     });
 
@@ -94,7 +94,10 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                 return;
             }
 
-            const selectedCat = categories.find(c => String(c.id) === String(formData.category_id));
+            const selectedCat = categories.find(c =>
+                String(c.id) === String(formData.category_id) ||
+                String(c.name).toLowerCase() === String(formData.category_id).toLowerCase()
+            );
             if (!selectedCat) return;
 
             try {
@@ -201,8 +204,8 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
             setFormData({
                 title: editingItem.title || "",
                 content_preview: editingItem.content_preview || editingItem.content || "",
-                category_id: editingItem.category_id || "",
-                sub_category_id: editingItem.sub_category_id || "",
+                category_id: editingItem.category_id || editingItem.category || "",
+                sub_category_id: editingItem.sub_category_id || editingItem.subcategory_name || editingItem.subcategory || "",
                 featured_image: fullImageUrl,
 
                 is_post: editingItem.is_post === 1 || editingItem.is_post === "1" ? 1 : 0,

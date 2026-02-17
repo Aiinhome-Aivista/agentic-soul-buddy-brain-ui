@@ -22,7 +22,7 @@ export const apiService = async ({
             },
         };
 
-        if (data && method !== "GET" && method !== "DELETE") {
+        if (data && method !== "GET" ) {
             options.body = isFormData ? data : JSON.stringify(data);
         }
 

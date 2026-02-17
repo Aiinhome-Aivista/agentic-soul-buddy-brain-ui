@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Save, Loader2, X, Tag, ChevronDown, Plus } from "lucide-react";
 import { apiService } from "../../../../service/ApiService";
-import { POST_url } from "../../../../connection/connection";
+import { POST_url, GET_url } from "../../../../connection/connection";
 
 function SubCategoryForm({
     editingItem,
+    categories,
     onCancel,
     onSubmit,
     submitting,
@@ -13,88 +14,73 @@ function SubCategoryForm({
 }) {
     const [formData, setFormData] = useState({
         category_id: "",
-        name: "" // Used for current input
     });
-    const [subNames, setSubNames] = useState([]); // Array for sub-categories
-    const [existingNames, setExistingNames] = useState([]); // Track original names for sync
-    const [categories, setCategories] = useState([]);
-    const [fetchingCategories, setFetchingCategories] = useState(false);
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            setFetchingCategories(true);
-            try {
-                const response = await apiService({
-                    url: POST_url.category,
-                    method: "GET"
-                });
-                if (Array.isArray(response)) {
-                    setCategories(response);
-                } else if (response?.data && Array.isArray(response.data)) {
-                    setCategories(response.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch categories", error);
-            } finally {
-                setFetchingCategories(false);
-            }
-        };
-        fetchCategories();
-    }, []);
+    const [subNames, setSubNames] = useState([{ name: "", originalName: null }]); // Start with one empty row
 
     useEffect(() => {
         if (editingItem) {
-            // editingItem is now a group object: {category_id, category_name, subcategories: []}
             setFormData({
-                category_id: editingItem.category_id || "",
-                name: ""
+                category_id: editingItem.category_id ? String(editingItem.category_id) : "",
             });
-            const names = editingItem.subcategories.map(s => s.name);
-            setSubNames(names);
-            setExistingNames(names);
+            const names = editingItem.subcategories.map(s => {
+                const rawName = s.name || "";
+                return {
+                    name: rawName.trim(), // Trim for user input
+                    originalName: rawName  // Keep EXACT raw name for server matching
+                };
+            });
+            setSubNames(names.length > 0 ? names : [{ name: "", originalName: null }]);
         } else {
-            setFormData(prev => ({ ...prev, name: "", category_id: "" }));
-            setSubNames([]);
-            setExistingNames([]);
+            setFormData({ category_id: "" });
+            setSubNames([{ name: "", originalName: null }]);
         }
     }, [editingItem]);
 
-    const handleAddSubName = () => {
-        const trimmed = formData.name.trim();
-        if (trimmed && !subNames.includes(trimmed)) {
-            setSubNames([...subNames, trimmed]);
-            setFormData({ ...formData, name: "" });
+    const handleRowChange = (index, value) => {
+        const newSubNames = [...subNames];
+        newSubNames[index] = { ...newSubNames[index], name: value };
+        setSubNames(newSubNames);
+    };
+
+    const handleAddRow = () => {
+        setSubNames([...subNames, { name: "", originalName: null }]);
+    };
+
+    const handleRemoveRow = (index) => {
+        if (subNames.length > 1) {
+            const newSubNames = subNames.filter((_, i) => i !== index);
+            setSubNames(newSubNames);
+        } else {
+            setSubNames([{ name: "", originalName: null }]); // Keep at least one empty row
         }
     };
 
-    const handleRemoveSubName = (nameToRemove) => {
-        setSubNames(subNames.filter(n => n !== nameToRemove));
-    };
-
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e, index) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            handleAddSubName();
+            handleAddRow();
         }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Include the current input if not empty
-        let finalNames = [...subNames];
-        const currentName = formData.name.trim();
-        if (currentName && !finalNames.includes(currentName)) {
-            finalNames.push(currentName);
-        }
+        // Filter out empty rows and trim values
+        const finalRows = subNames
+            .map(row => ({
+                ...row,
+                name: row.name.trim()
+            }))
+            .filter(row => row.name !== "");
 
-        if (finalNames.length === 0 && !editingItem) return;
+        if (finalRows.length === 0 && !editingItem) return;
 
-        // Pass the array of sub-category names to be synced/added
         onSubmit({
             category_id: formData.category_id,
-            subcategory_names: finalNames,
-            original_names: existingNames // So management can determine what to add/remove
+            subcategories: finalRows, // Pass the objects
+            // Maintain compatibility or derived data if needed
+            subcategory_names: finalRows.map(r => r.name),
+            original_names: editingItem ? editingItem.subcategories.map(s => s.name) : []
         });
     };
 
@@ -132,9 +118,9 @@ function SubCategoryForm({
                             onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                             className="w-full bg-[#0f172a] border border-[#334155] rounded-lg pl-10 pr-10 py-2.5 text-white focus:ring-2 focus:ring-[#795eff] focus:border-transparent transition-all outline-none appearance-none"
                         >
-                            <option value="" disabled>{fetchingCategories ? "Loading categories..." : "Select parent category"}</option>
+                            <option value="" disabled>Select parent category</option>
                             {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
                             ))}
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -142,47 +128,47 @@ function SubCategoryForm({
                 </div>
 
                 {/* Sub-Category Names */}
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {editingItem ? "Sub-Category Name" : "Add Sub-Category Names"} <span className="text-red-400">*</span>
-                    </label>
-
-                    {subNames.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                            {subNames.map((name) => (
-                                <span key={name} className="flex items-center gap-1.5 px-3 py-1 bg-[#795eff]/20 border border-[#795eff]/30 text-[#a594ff] rounded-full text-sm">
-                                    {name}
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveSubName(name)}
-                                        className="hover:text-white"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            onKeyDown={handleKeyDown}
-                            className="flex-1 bg-[#0f172a] border border-[#334155] rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-[#795eff] focus:border-transparent transition-all outline-none"
-                            placeholder="enter sub-category name"
-                            required={subNames.length === 0}
-                        />
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <label className="block text-sm font-medium text-slate-300">
+                            {editingItem ? "Sub-Category Names" : "Add Sub-Category Names"} <span className="text-red-400">*</span>
+                        </label>
                         <button
                             type="button"
-                            onClick={handleAddSubName}
-                            className="p-2.5 bg-[#334155] hover:bg-[#475569] text-white rounded-lg transition-colors"
+                            onClick={handleAddRow}
+                            className="flex items-center gap-1.5 text-sm text-[#795eff] hover:text-[#6b51df] transition-colors"
                         >
-                            <Plus className="w-5 h-5" />
+                            <Plus className="w-4 h-4" />
+                            Add More
                         </button>
                     </div>
 
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto p-1 pr-2 custom-scrollbar">
+                        {subNames.map((row, index) => (
+                            <div key={index} className="flex gap-2">
+                                <div className="flex-1 relative">
+                                    <input
+                                        type="text"
+                                        value={row.name}
+                                        onChange={(e) => handleRowChange(index, e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(e, index)}
+                                        autoFocus={index === subNames.length - 1 && index !== 0}
+                                        className="w-full bg-[#0f172a] border border-[#334155] rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-[#795eff] focus:border-transparent transition-all outline-none"
+                                        placeholder="enter sub-category name"
+                                        required={subNames.length === 1}
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveRow(index)}
+                                    className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors border border-red-500/20"
+                                    title="Remove row"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="flex items-center justify-end gap-3 pt-2">

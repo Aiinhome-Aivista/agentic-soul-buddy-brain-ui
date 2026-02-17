@@ -16,7 +16,7 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 import TextAlign from "@tiptap/extension-text-align";
 import Image from "@tiptap/extension-image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import {
   AlignLeft,
   AlignCenter,
@@ -27,11 +27,42 @@ import {
   Loader2,
 } from "lucide-react";
 import { apiService } from "../../../service/ApiService";
-import { POST_url } from "../../../connection/connection";
+import { POST_url, DELETE_url } from "../../../connection/connection";
+import { Context } from "../../../common/helper/Context";
 
 // Custom Image Component with Resize and Delete
-const ImageComponent = ({ node, updateAttributes, deleteNode, selected }) => {
+const ImageComponent = ({ node, updateAttributes, deleteNode, selected, extension }) => {
   const { src, width, height, align, imageId } = node.attrs;
+  const authorName = extension.options.authorName;
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!imageId) {
+      deleteNode();
+      return;
+    }
+
+    try {
+      const response = await apiService({
+        url: DELETE_url.deleteContentImage(imageId),
+        method: "DELETE",
+        params: { author_name: authorName || user?.full_name || user?.username || "Admin" }
+      });
+
+      if (response?.status === "success") {
+        deleteNode();
+      } else {
+        console.error("Failed to delete image from server", response);
+
+        deleteNode();
+      }
+    } catch (error) {
+      console.error("Error deleting image", error);
+      deleteNode();
+    }
+  };
 
   return (
     <NodeViewWrapper
@@ -65,7 +96,7 @@ const ImageComponent = ({ node, updateAttributes, deleteNode, selected }) => {
         {/* Delete Button */}
         <button
           type="button"
-          onClick={deleteNode}
+          onClick={handleDelete}
           className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg shadow-black/50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
           title="Remove Image"
         >
@@ -170,8 +201,14 @@ const ImageComponent = ({ node, updateAttributes, deleteNode, selected }) => {
   );
 };
 
-// Extended Image extension with width/height attributes and custom node view
+
 const CustomImage = Image.extend({
+  addOptions() {
+    return {
+      ...this.parent?.(),
+      authorName: "",
+    };
+  },
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -210,7 +247,7 @@ const CustomImage = Image.extend({
   },
 });
 
-// Custom OrderedList extension for Roman numerals
+
 const RomanList = OrderedList.extend({
   name: "romanList",
   addAttributes() {
@@ -230,7 +267,7 @@ const RomanList = OrderedList.extend({
   },
 });
 
-// Custom OrderedList extension for Alphabetical lists
+
 const AlphaList = OrderedList.extend({
   name: "alphaList",
   addAttributes() {
@@ -251,8 +288,11 @@ const AlphaList = OrderedList.extend({
 });
 
 export default function TiptapEditor({ formData, setFormData, onEditorReady, authorName }) {
+  const { user } = useContext(Context);
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const dynamicAuthorName = authorName || user?.full_name || user?.username || "Admin";
 
   const editor = useEditor({
     extensions: [
@@ -276,6 +316,7 @@ export default function TiptapEditor({ formData, setFormData, onEditorReady, aut
       }),
       CustomImage.configure({
         allowBase64: false,
+        authorName: dynamicAuthorName,
       }),
     ],
     content: formData.content_preview,
@@ -345,7 +386,7 @@ export default function TiptapEditor({ formData, setFormData, onEditorReady, aut
     try {
       const data = new FormData();
       data.append("image", file);
-      data.append("author_name", authorName || "Anonymous");
+      data.append("author_name", dynamicAuthorName || "Admin");
 
       const response = await apiService({
         url: POST_url.contentImages,
@@ -535,7 +576,7 @@ export default function TiptapEditor({ formData, setFormData, onEditorReady, aut
           ) : (
             <ImageIcon className="w-4 h-4" />
           )}
-      
+
         </button>
         <input
           type="file"

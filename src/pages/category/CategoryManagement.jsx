@@ -3,7 +3,7 @@ import { AlertCircle, X } from "lucide-react";
 import CategoryList from "./components/CategoryList";
 import CategoryForm from "./components/CategoryForm";
 import { apiService } from "../../service/ApiService";
-import { POST_url, DELETE_url } from "../../connection/connection";
+import { POST_url, DELETE_url, PUT_url } from "../../connection/connection";
 import { Context } from "../../common/helper/Context";
 
 function CategoryManagement() {
@@ -77,14 +77,14 @@ function CategoryManagement() {
 
         try {
             const url = editingItem
-                ? `${POST_url.category}/${editingItem.id}`
+                ? PUT_url.updateCategory(editingItem.id)
                 : POST_url.category;
 
             const method = editingItem ? "PUT" : "POST";
 
             const payload = {
                 ...formData,
-                author_name: user?.full_name
+                author_name: user?.full_name || user?.username || "Admin"
             };
 
             const response = await apiService({
@@ -114,7 +114,7 @@ function CategoryManagement() {
             const response = await apiService({
                 url: DELETE_url.deleteCategory(id),
                 method: "DELETE",
-                params: { author_name: authorName || user?.full_name || "Admin" }
+                params: { author_name: authorName || user?.full_name || user?.username || "Admin" }
             });
             if (response && !response.error) {
                 setDeleteConfirm(null);

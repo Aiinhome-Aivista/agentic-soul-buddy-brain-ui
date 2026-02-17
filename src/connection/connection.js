@@ -50,6 +50,9 @@ export const GET_url = {
 
 export const PUT_url = {
   updateSubCategory: (categoryId) => `${API_BASE_URL}/categories/${categoryId}/subcategories`,
+  updateBlog: (id) => `${API_BASE_URL}/blogs/${id}`,
+  updateCategory: (id) => `${API_BASE_URL}/categories/${id}`,
+ 
 };
 
 
@@ -60,5 +63,6 @@ export const DELETE_url = {
   deleteCategory: (id) => `${API_BASE_URL}/categories/${id}`,
   deleteSubCategory: (categoryId) => `${API_BASE_URL}/categories/${categoryId}/subcategories`,
   deleteBlog: (id) => `${API_BASE_URL}/blogs/${id}`,
+  deleteContentImage: (id) => `${API_BASE_URL}/content-images/${id}`,
 
 };
