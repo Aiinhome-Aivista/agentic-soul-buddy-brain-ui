@@ -289,7 +289,7 @@ const BlogList = ({
                                             )}
                                         </td>
                                         <td className="p-4">
-                                            <span className="text-xs text-slate-400 block max-w-[300px] truncate" title={stripHtml(item.content_preview || item.content || "")}>
+                                            <span className="text-xs text-slate-400 block max-w-[180px] truncate" title={stripHtml(item.content_preview || item.content || "")}>
                                                 {stripHtml(item.content_preview || item.content || "").substring(0, 80)}...
                                             </span>
                                         </td>
@@ -517,9 +517,7 @@ const BlogList = ({
                     <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
                         {/* Modal Header */}
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-3 bg-red-500/20 rounded-lg">
-                                <Trash2 className="w-6 h-6 text-red-400" />
-                            </div>
+
                             <div>
                                 <h3 className="text-xl font-bold text-white">Delete Blog Post</h3>
                                 <p className="text-sm text-slate-400">This action cannot be undone</p>
@@ -535,12 +533,7 @@ const BlogList = ({
                                 <p className="text-sm text-slate-400 mb-1">Title:</p>
                                 <p className="text-white font-medium">{blogToDelete.title}</p>
                             </div>
-                            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                                <p className="text-sm text-red-400 flex items-start gap-2">
-                                    <span className="text-lg">⚠️</span>
-                                    <span>This will permanently delete the blog post and all associated data.</span>
-                                </p>
-                            </div>
+
                         </div>
 
                         {/* Modal Actions */}

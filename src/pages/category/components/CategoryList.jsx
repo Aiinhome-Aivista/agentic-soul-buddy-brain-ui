@@ -1,5 +1,6 @@
 import React from "react";
-import { Edit2, Trash2, Search, Plus, RefreshCw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Edit2, Trash2, Search, Plus, RefreshCw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LayoutList } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function CategoryList({
     categoryData,
@@ -59,6 +60,13 @@ function CategoryList({
                         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                     </button>
+                    <Link
+                        to="/subcategory"
+                        className="bg-[#795eff] hover:bg-[#6b51df] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                    >
+                        <LayoutList className="w-4 h-4" />
+                        Sub Category
+                    </Link>
                     <button
                         onClick={openAddPage}
                         className="bg-[#795eff] hover:bg-[#6b51df] text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"

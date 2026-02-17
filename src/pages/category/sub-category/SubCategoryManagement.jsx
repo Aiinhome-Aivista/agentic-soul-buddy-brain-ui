@@ -197,6 +197,22 @@ function SubCategoryManagement() {
         }
     };
 
+    const handleDeleteSingleSubCategory = async (categoryId, subcategoryName) => {
+        try {
+            await apiService({
+                url: DELETE_url.deleteSubCategory(categoryId),
+                method: "DELETE",
+                data: {
+                    author_name: user?.full_name || "Chief Administrator",
+                    subcategory_name: subcategoryName
+                }
+            });
+            fetchSubCategoryData();
+        } catch (err) {
+            setError(err.message || "Failed to delete sub-category");
+        }
+    };
+
     return (
         <div className="min-h-[80vh] w-full text-white">
             {error && (
@@ -219,6 +235,7 @@ function SubCategoryManagement() {
                 deleteConfirm={deleteConfirm}
                 setDeleteConfirm={setDeleteConfirm}
                 handleDelete={handleDelete}
+                handleDeleteSingleSubCategory={handleDeleteSingleSubCategory}
                 onRefresh={fetchSubCategoryData}
             />
 

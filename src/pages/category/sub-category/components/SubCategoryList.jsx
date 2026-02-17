@@ -1,5 +1,6 @@
 import React from "react";
-import { Edit2, Trash2, Search, Plus, RefreshCw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Edit2, Trash2, Search, Plus, RefreshCw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowLeft, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function SubCategoryList({
     subCategoryData,
@@ -11,11 +12,13 @@ function SubCategoryList({
     deleteConfirm,
     setDeleteConfirm,
     handleDelete,
+    handleDeleteSingleSubCategory,
     onRefresh
 }) {
     // Pagination state
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage, setItemsPerPage] = React.useState(10);
+    const [singleDeleteConfirm, setSingleDeleteConfirm] = React.useState(null);
 
     const filteredData = subCategoryData.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -66,7 +69,16 @@ function SubCategoryList({
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-white">Sub-Category Management</h1>
+                <div className="flex items-center gap-3">
+                    <Link
+                        to="/category"
+                        className="p-2 bg-[#1e293b] hover:bg-[#334155] border border-[#334155] text-slate-300 hover:text-white rounded-lg transition-colors"
+                        title="Back to Categories"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                    </Link>
+                    <h1 className="text-2xl font-bold text-white">Sub-Category Management</h1>
+                </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onRefresh}
@@ -106,7 +118,7 @@ function SubCategoryList({
                                 <th className="p-4 text-slate-300 font-medium w-24">Cat ID</th>
                                 <th className="p-4 text-slate-300 font-medium w-64">Category</th>
                                 <th className="p-4 text-slate-300 font-medium">Sub-Categories</th>
-                             
+
                                 <th className="p-4 text-slate-300 font-medium w-32 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -137,14 +149,25 @@ function SubCategoryList({
                                                 {group.subcategories.map((sub) => (
                                                     <div
                                                         key={sub.id}
-                                                        className="inline-flex items-center px-3 py-1 bg-[#795eff]/10 border border-[#795eff]/20 rounded-full"
+                                                        className="inline-flex items-center gap-2 px-3 py-1 bg-[#795eff]/10 border border-[#795eff]/20 rounded-full hover:border-[#795eff]/50 transition-colors"
                                                     >
                                                         <span className="text-white text-sm font-medium">{sub.name}</span>
+                                                        <button
+                                                            onClick={() => setSingleDeleteConfirm({
+                                                                categoryId: group.category_id,
+                                                                name: sub.name,
+                                                                categoryName: group.category_name
+                                                            })}
+                                                            className="text-slate-500 hover:text-red-400 transition-all"
+                                                            title={`Delete ${sub.name}`}
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
                                                     </div>
                                                 ))}
                                             </div>
                                         </td>
-                                    
+
                                         <td className="p-4">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
@@ -292,6 +315,38 @@ function SubCategoryList({
                                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
                             >
                                 Delete All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Single Delete Confirmation Modal */}
+            {singleDeleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-6 max-w-sm w-full shadow-2xl">
+                        <div className="flex items-center gap-3 text-red-400 mb-4">
+
+                            <h3 className="text-lg font-bold text-white">Delete Sub-category?</h3>
+                        </div>
+                        <p className="text-slate-300 mb-6">
+                            Are you sure you want to delete <strong>{singleDeleteConfirm.name}</strong> from <strong>{singleDeleteConfirm.categoryName}</strong>?
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setSingleDeleteConfirm(null)}
+                                className="px-4 py-2 text-slate-300 hover:text-white hover:bg-[#334155] rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleDeleteSingleSubCategory(singleDeleteConfirm.categoryId, singleDeleteConfirm.name);
+                                    setSingleDeleteConfirm(null);
+                                }}
+                                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-lg shadow-red-500/20"
+                            >
+                                Delete
                             </button>
                         </div>
                     </div>

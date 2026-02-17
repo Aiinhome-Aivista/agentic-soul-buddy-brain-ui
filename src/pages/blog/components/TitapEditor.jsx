@@ -535,6 +535,7 @@ export default function TiptapEditor({ formData, setFormData, onEditorReady, aut
           ) : (
             <ImageIcon className="w-4 h-4" />
           )}
+      
         </button>
         <input
           type="file"
