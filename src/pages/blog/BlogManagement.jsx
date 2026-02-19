@@ -94,19 +94,9 @@ function BlogManagement() {
 
             const method = editingItem ? "PUT" : "POST";
 
-            // Prepare FormData
-            const data = new FormData();
-
-            // Append all fields from formData
-            Object.keys(formData).forEach(key => {
-
-                if (key === 'image' && formData[key] instanceof File) {
-                    data.append('image', formData[key]);
-                } else if (key !== 'featured_image' && key !== 'image') { // exclude preview url
-                    // basic fields
-                    data.append(key, formData[key]);
-                }
-            });
+            if (user?.full_name) {
+                formData.set("author_name", user.full_name);
+            }
 
 
 

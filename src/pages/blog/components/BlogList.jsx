@@ -73,7 +73,9 @@ const BlogList = ({
                         (item.title?.toLowerCase() || "").includes(query) ||
                         (item.content?.toLowerCase() || "").includes(query) ||
                         (item.category?.toLowerCase() || "").includes(query) ||
-                        (item.tags?.toString()?.toLowerCase() || "").includes(query)
+                        (item.tags?.toString()?.toLowerCase() || "").includes(query) ||
+                        (item.meta_title?.toLowerCase() || "").includes(query) ||
+                        (item.meta_keywords?.toLowerCase() || "").includes(query)
                     );
                     if (!matchesSearch) return false;
                 }
@@ -232,10 +234,12 @@ const BlogList = ({
                             <tr className="border-b border-slate-700 bg-slate-800/80">
                                 <th className="text-left p-4 text-slate-300 font-medium">ID</th>
                                 <th className="text-left p-4 text-slate-300 font-medium max-w-xs">Title</th>
-                                <th className="text-left p-4 text-slate-300 font-medium max-w-sm">Content Preview</th>
+                                <th className="text-left p-4 text-slate-300 font-medium max-w-xs">Content Preview</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Featured Image</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Category</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Tags</th>
+                                <th className="text-left p-4 text-slate-300 font-medium">Meta Title</th>
+                                <th className="text-left p-4 text-slate-300 font-medium">Meta Keywords</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Status</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Created Date</th>
                                 <th className="text-left p-4 text-slate-300 font-medium">Action</th>
@@ -279,7 +283,7 @@ const BlogList = ({
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <span className="text-white font-medium truncate max-w-[200px] block" title={item.title}>
+                                            <span className="text-white font-medium truncate max-w-[100px] block" title={item.title}>
                                                 {item.title}
                                             </span>
                                             {(item.is_pinned === 1 || item.is_pinned === true) && (
@@ -289,7 +293,7 @@ const BlogList = ({
                                             )}
                                         </td>
                                         <td className="p-4">
-                                            <span className="text-xs text-slate-400 block max-w-[180px] truncate" title={stripHtml(item.content_preview || item.content || "")}>
+                                            <span className="text-xs text-slate-400 block max-w-[100px] truncate" title={stripHtml(item.content_preview || item.content || "")}>
                                                 {stripHtml(item.content_preview || item.content || "").substring(0, 80)}...
                                             </span>
                                         </td>
@@ -318,7 +322,7 @@ const BlogList = ({
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                            <div className="flex flex-wrap gap-1 max-w-[50px]">
                                                 {parseTags(item.tags).slice(0, 3).map((tag, idx) => (
                                                     <span key={idx} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
                                                         {tag}
@@ -328,6 +332,28 @@ const BlogList = ({
                                                     <span className="text-[10px] text-slate-500">
                                                         +{parseTags(item.tags).length - 3} more
                                                     </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-xs text-slate-400 block max-w-[100px] truncate" title={item.meta_title}>
+                                                {item.meta_title || "-"}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-wrap gap-1 max-w-[50px]">
+                                                {parseTags(item.meta_keywords).slice(0, 2).map((keyword, idx) => (
+                                                    <span key={idx} className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] bg-slate-700/50 text-slate-400 border border-slate-600/50">
+                                                        {keyword}
+                                                    </span>
+                                                ))}
+                                                {parseTags(item.meta_keywords).length > 2 && (
+                                                    <span className="text-[9px] text-slate-500">
+                                                        +{parseTags(item.meta_keywords).length - 2} more
+                                                    </span>
+                                                )}
+                                                {parseTags(item.meta_keywords).length === 0 && (
+                                                    <span className="text-xs text-slate-500">-</span>
                                                 )}
                                             </div>
                                         </td>
@@ -363,7 +389,7 @@ const BlogList = ({
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center">
                                                 <button
                                                     onClick={() => handleTogglePin(item.id)}
                                                     disabled={true}

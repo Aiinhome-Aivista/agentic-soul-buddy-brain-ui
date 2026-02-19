@@ -51,7 +51,12 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         is_post: 1,
         is_pinned: false,
         author_name: user?.full_name || user?.username || "Admin",
-        tags: ""
+        tags: "",
+        meta_title: "",
+        meta_description: "",
+        meta_keywords: "",
+        canonical_url: "",
+        index_status: "index"
     });
 
     const [imageFile, setImageFile] = useState();
@@ -59,6 +64,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
     const [subCategories, setSubCategories] = useState([]);
     const [contentImages, setContentImages] = useState([]);
     const [editorInstance, setEditorInstance] = useState(null);
+    const [isSeoExpanded, setIsSeoExpanded] = useState(false);
 
 
     // Tags State
@@ -211,7 +217,12 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                 is_post: editingItem.is_post === 1 || editingItem.is_post === "1" ? 1 : 0,
                 is_pinned: editingItem.is_pinned || false,
                 author_name: editingItem.author_name || user?.full_name || "",
-                tags: ""
+                tags: "",
+                meta_title: editingItem.meta_title || "",
+                meta_description: editingItem.meta_description || "",
+                meta_keywords: editingItem.meta_keywords || "",
+                canonical_url: editingItem.canonical_url || "",
+                index_status: editingItem.index_status || "index"
             });
 
         }
@@ -276,8 +287,12 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
         data.append("sub_category_id", formData.sub_category_id);
         data.append("subcategory", formData.sub_category_id);
         data.append("is_pinned", formData.is_pinned ? 1 : 0);
-
         data.append("is_post", formData.is_post);
+        if (formData.meta_title) data.append("meta_title", formData.meta_title);
+        if (formData.meta_description) data.append("meta_description", formData.meta_description);
+        if (formData.meta_keywords) data.append("meta_keywords", formData.meta_keywords);
+        if (formData.canonical_url) data.append("canonical_url", formData.canonical_url);
+        data.append("index_status", formData.index_status);
 
         data.append("tags", JSON.stringify(selectedTags));
 
@@ -580,7 +595,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                     </div>
 
                     {/* Pin Status */}
-                    <div>
+                    <div className="flex flex-wrap gap-6">
                         <label className="flex items-center gap-3 cursor-pointer group">
                             <div className="relative w-4 h-4 shrink-0">
                                 <input
@@ -595,6 +610,133 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                             </div>
                             <span className="text-slate-300 text-sm">Pin this post to top</span>
                         </label>
+                    </div>
+
+                    {/* SEO Settings Section */}
+                    <div className="pt-6 border-t border-slate-700">
+                        <div className="border border-slate-700 rounded-xl overflow-hidden bg-slate-800/30">
+                            <button
+                                type="button"
+                                onClick={() => setIsSeoExpanded(!isSeoExpanded)}
+                                className="w-full flex items-center justify-between p-4 hover:bg-slate-700/30 transition group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-500/10 rounded-lg group-hover:bg-yellow-500/20 transition">
+                                        <RefreshCw className="w-5 h-5 text-yellow-500" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-white">SEO Settings</h3>
+                                </div>
+                                <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isSeoExpanded ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSeoExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="p-6 pt-2 space-y-6">
+                                    {/* Meta Title */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            Meta Title
+                                        </label>
+                                        <div className="relative">
+                                            <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input
+                                                type="text"
+                                                name="meta_title"
+                                                value={formData.meta_title}
+                                                onChange={handleInputChange}
+                                                className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition text-white"
+                                                placeholder="Enter meta title for SEO"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Meta Description */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            Meta Description
+                                        </label>
+                                        <textarea
+                                            name="meta_description"
+                                            value={formData.meta_description}
+                                            onChange={handleInputChange}
+                                            rows="3"
+                                            className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition text-white resize-none"
+                                            placeholder="Enter meta description for search results..."
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Meta Keywords */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-300 mb-2">
+                                                Meta Keywords
+                                            </label>
+                                            <div className="relative">
+                                                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                                <input
+                                                    type="text"
+                                                    name="meta_keywords"
+                                                    value={formData.meta_keywords}
+                                                    onChange={handleInputChange}
+                                                    className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition text-white"
+                                                    placeholder="yoga, health, wellness"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Canonical URL */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-300 mb-2">
+                                                Canonical URL
+                                            </label>
+                                            <div className="relative">
+                                                <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                                <input
+                                                    type="url"
+                                                    name="canonical_url"
+                                                    value={formData.canonical_url}
+                                                    onChange={handleInputChange}
+                                                    className="w-full pl-10 pr-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition text-white"
+                                                    placeholder="https://example.com/blog/post-url"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Index Status */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            Search Engine Indexing
+                                        </label>
+                                        <div className="flex gap-6 items-center h-[50px]">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="index_status"
+                                                    value="index"
+                                                    checked={formData.index_status === "index"}
+                                                    onChange={handleInputChange}
+                                                    className="hidden peer"
+                                                />
+                                                <div className="w-4 h-4 rounded-full border border-slate-400 peer-checked:border-green-500 peer-checked:bg-green-500 transition-colors"></div>
+                                                <span className="text-slate-300 peer-checked:text-green-400 transition-colors">Index (Show in search)</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="index_status"
+                                                    value="noindex"
+                                                    checked={formData.index_status === "noindex"}
+                                                    onChange={handleInputChange}
+                                                    className="hidden peer"
+                                                />
+                                                <div className="w-4 h-4 rounded-full border border-slate-400 peer-checked:border-red-500 peer-checked:bg-red-500 transition-colors"></div>
+                                                <span className="text-slate-300 peer-checked:text-red-400 transition-colors">No-Index (Hide from search)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Content */}
