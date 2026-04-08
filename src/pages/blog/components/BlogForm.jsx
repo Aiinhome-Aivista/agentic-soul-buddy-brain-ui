@@ -28,8 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../../../env/env";
 
 
-import Underline from "@tiptap/extension-underline";
-import TiptapEditor from "./TitapEditor";
+import JoditEditor from "./JoditEditor";
 
 
 const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, submitError, user }) => {
@@ -216,7 +215,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
 
                 is_post: editingItem.is_post === 1 || editingItem.is_post === "1" ? 1 : 0,
                 is_pinned: editingItem.is_pinned || false,
-                author_name: editingItem.author_name || user?.full_name || "",
+                author_name: editingItem.author_name || user?.full_name || user?.username || "Admin",
                 tags: "",
                 meta_title: editingItem.meta_title || "",
                 meta_description: editingItem.meta_description || "",
@@ -749,7 +748,7 @@ const BlogForm = ({ editingItem, onCancel, onSubmit, submitting, submitSuccess, 
                             </label>
                         </div>
 
-                        <TiptapEditor
+                        <JoditEditor
                             formData={formData}
                             setFormData={setFormData}
                             contentImages={contentImages}
